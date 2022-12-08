@@ -15,6 +15,11 @@ const lightTheme = createTheme({
       main: "#d2d2d2",
     },
   },
+  typography: {
+    button: {
+      textTransform: "none",
+    },
+  },
 });
 
 const darkTheme = createTheme({

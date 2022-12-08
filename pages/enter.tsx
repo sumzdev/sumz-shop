@@ -1,11 +1,4 @@
-import {
-  Button,
-  Container,
-  CssBaseline,
-  Grid,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, Container, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
@@ -51,7 +44,7 @@ export default function Enter() {
         </Button>
 
         <Button className="self-end">
-          <Link href="#">회원가입</Link>
+          <Link href="/signup">회원가입</Link>
         </Button>
 
         <Box className="flex flex-row w-full gap-4 mt-10">
@@ -61,32 +54,37 @@ export default function Enter() {
             sx={{ py: 1.2 }}
             onClick={() => signIn("google")}
           >
-            Google 로그인
+            Sign in with Google
           </Button>
           <Button
             variant="contained"
             fullWidth
-            onClick={() => signIn("google")}
+            onClick={() => signIn("kakao")}
+            className=""
           >
-            Google 로그인
+            Sign in with Kakao
           </Button>
         </Box>
       </Box>
 
       <Box className="mt-10">
-        {!session?.user && (
+        {session?.user && (
           <button
             className="bg-slate-300 px-10 py-3 rounded-md"
             onClick={() => signOut()}
           >
-            Google SignOut
+            SignOut
           </button>
         )}
 
         <div className="mb-10 border-solid border">
           <p>Status : {status}</p>
-          <p>email : {session?.user?.email}</p>
-          <p>name : {session?.user?.name}</p>
+          {status == "authenticated" && (
+            <>
+              <p>email : {session?.user?.email}</p>
+              <p>name : {session?.user?.name}</p>
+            </>
+          )}
         </div>
       </Box>
     </Container>

@@ -58,7 +58,7 @@ export default function Signup() {
         </Button>
 
         <Button className="self-end">
-          <Link href="#">로그인</Link>
+          <Link href="/enter">로그인</Link>
         </Button>
       </Box>
     </Container>
