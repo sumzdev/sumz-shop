@@ -1,8 +1,10 @@
+import useMutation from "@libs/client/useMutation";
 import { Button, TextField } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 interface IFormInput {
@@ -33,6 +35,7 @@ const signupHelper = {
 };
 
 export default function Signup() {
+  const router = useRouter();
   const { handleSubmit, control, watch } = useForm<IFormInput>({
     defaultValues: {
       email: "",
@@ -43,7 +46,21 @@ export default function Signup() {
     reValidateMode: "onBlur",
   });
 
-  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data);
+  const [user, { loading, data }] = useMutation("/api/users/signup");
+
+  const onSubmit: SubmitHandler<IFormInput> = useCallback(
+    (data) => {
+      if (loading) return;
+      user(data);
+    },
+    [loading, user]
+  );
+
+  useEffect(() => {
+    if (data && data.ok) {
+      router.push(`/enter`);
+    }
+  });
 
   return (
     <Container className="flex items-conter w-full justify-center">
@@ -69,6 +86,7 @@ export default function Signup() {
                 value: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
                 message: signupHelper.email["pattern"],
               },
+              // TODO: 이메일 중복 체크
             }}
             render={({ field, fieldState: { error } }) => (
               <TextField

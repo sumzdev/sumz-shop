@@ -1,9 +1,10 @@
+import client from "@libs/server/client";
 import { NextApiHandler } from "next";
 import NextAuth from "next-auth/next";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { CredentialsProvider } from "next-auth/providers";
 import GoogleProvider from "next-auth/providers/google";
 import KakaoProvider from "next-auth/providers/kakao";
-import client from "../../../libs/server/client";
 
 const options = {
   adapter: PrismaAdapter(client),
@@ -16,6 +17,13 @@ const options = {
       clientId: String(process.env.GOOGLE_CLIENT_ID),
       clientSecret: String(process.env.GOOGLE_CLIENT_SECRET),
     }),
+    // CredentialsProvider({
+    //   name: "Sign in SUMZ",
+    //   email: {
+    //     label: "Email",
+    //     type: "text",
+    //   },
+    // }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
 };
