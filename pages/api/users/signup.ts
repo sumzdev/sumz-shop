@@ -21,7 +21,7 @@ async function handler(
       name,
     },
   });
-  console.log(createdUser);
+  // console.log(createdUser);
 
   return res.status(200).json({
     ok: true,
