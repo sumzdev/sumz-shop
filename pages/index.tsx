@@ -4,6 +4,9 @@ import { Product } from "@prisma/client";
 import { Container } from "@mui/system";
 import Item from "@components/item";
 import ProductsLoad from "@components/productsLoad";
+import { useSession } from "next-auth/react";
+import FloatingButton from "@components/floating-button";
+import AddIcon from "@mui/icons-material/Add";
 
 interface ProductsResponse {
   ok: boolean;
@@ -11,6 +14,10 @@ interface ProductsResponse {
 }
 
 export default function Home() {
+  const { data: user, status } = useSession();
+  // TODO: admin
+  const admin = true;
+
   const { data } = useSWR<ProductsResponse>("/api/products");
   if (!data) {
     return <ProductsLoad />;
@@ -33,6 +40,12 @@ export default function Home() {
           ))}
         </div>
       </Container>
+
+      {admin && (
+        <FloatingButton href={`/products/upload`} text="상품 추가하기">
+          <AddIcon />
+        </FloatingButton>
+      )}
     </Layout>
   );
 }

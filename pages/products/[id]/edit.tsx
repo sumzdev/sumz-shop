@@ -231,7 +231,7 @@ const Edit: NextPage = () => {
           onClick={onDeleteClick}
           fullWidth
           variant="contained"
-          sx={{ mt: 1, mb: 10, py: 1.7 }}
+          sx={{ mt: 1, mb: 10, py: 1.7, backgroundColor: "#c62828" }}
         >
           상품 삭제
         </Button>
