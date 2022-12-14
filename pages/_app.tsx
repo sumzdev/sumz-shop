@@ -4,6 +4,7 @@ import Head from "next/head";
 
 import { SessionProvider } from "next-auth/react";
 import { createTheme, ThemeProvider } from "@mui/material";
+import { SWRConfig } from "swr";
 
 const lightTheme = createTheme({
   palette: {
@@ -37,9 +38,16 @@ export default function App({ Component, pageProps }: AppProps) {
       <Head>
         <title>Sumz Shop</title>
       </Head>
-      <SessionProvider session={pageProps.session}>
-        <Component {...pageProps} />
-      </SessionProvider>
+      <SWRConfig
+        value={{
+          fetcher: (url: string) =>
+            fetch(url).then((response) => response.json()),
+        }}
+      >
+        <SessionProvider session={pageProps.session}>
+          <Component {...pageProps} />
+        </SessionProvider>
+      </SWRConfig>
     </ThemeProvider>
   );
 }
