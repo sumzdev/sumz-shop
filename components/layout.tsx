@@ -1,5 +1,6 @@
 import { Box, Container } from "@mui/system";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 
 interface LayoutProps {
@@ -11,13 +12,17 @@ export default function Layout({ admin, children }: LayoutProps) {
   const router = useRouter();
   return (
     <Container className="flex items-center w-full h-full justify-center">
-      {/* header */}
-      <Box className="mt-8 items-center flex flex-row justify-center py-14 gap-3 ">
-        <Image src="/sumz.svg" alt="Sumz Logo" width={72} height={72} />
-        <h2 className="text-4xl font-bold text-center  ">SUMZ</h2>
-      </Box>
+      <div className="my-14 flex items-center justify-center">
+        <Link
+          href="/"
+          className="flex flex-row items-center justify-center gap-3"
+        >
+          <Image src="/sumz.svg" alt="Sumz Logo" width={72} height={72} />
+          <p className="text-4xl font-bold text-center  ">SUMZ</p>
+        </Link>
+      </div>
 
-      <Box className="h-full">{children}</Box>
+      <Box className="h-full w-full">{children}</Box>
     </Container>
   );
 }

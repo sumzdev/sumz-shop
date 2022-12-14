@@ -21,7 +21,7 @@ async function handler(
     const product = await client.product.create({
       data: {
         name,
-        image: "", //TODO: 이미지 업로드
+        image: image,
         category,
         price: Number(price),
         description,
@@ -38,5 +38,4 @@ async function handler(
 export default withHandler({
   methods: ["POST", "GET"],
   handler,
-  isPrivate: true,
 });

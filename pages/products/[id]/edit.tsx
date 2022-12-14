@@ -1,3 +1,4 @@
+import useSWR from "swr";
 import Layout from "@components/layout";
 import useMutation from "@libs/client/useMutation";
 import {
@@ -13,7 +14,8 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-interface UploadProductForm {
+interface EditProductForm {
+  id: number;
   name: string;
   price: number;
   image: string;
@@ -21,9 +23,13 @@ interface UploadProductForm {
   description: string;
 }
 
-interface UploadProductMutation {
+interface ProductInfoResponse {
   ok: boolean;
   product: Product;
+}
+
+interface ProductDeleteResponse {
+  ok: boolean;
 }
 
 const uploadHelper = {
@@ -47,10 +53,12 @@ const categoryOptions = [
   { value: "jewelery", label: "액세서리" },
 ];
 
-const Upload: NextPage = () => {
+const Edit: NextPage = () => {
   const router = useRouter();
-  const { register, handleSubmit, control } = useForm<UploadProductForm>({
+
+  const { setValue, handleSubmit, control } = useForm<EditProductForm>({
     defaultValues: {
+      id: 0,
       name: "",
       price: 0,
       image: "",
@@ -59,19 +67,57 @@ const Upload: NextPage = () => {
     },
   });
 
-  const [uploadProduct, { loading, data }] = useMutation("/api/products");
+  const [editProduct, { loading, data: updateData }] = useMutation(
+    `/api/products/${router.query.id}/edit`
+  );
+  const [deleteProduct, { loading: deleteLoading, data: deleteData }] =
+    useMutation(`/api/products/${router.query.id}/delete`);
 
-  const onValid = (data: UploadProductForm) => {
-    if (loading) return;
-    console.log("upload product: ", data);
-    uploadProduct(data);
-  };
+  const { data } = useSWR<ProductInfoResponse>(
+    router.query.id ? `/api/products/${router.query.id}` : null
+  );
+
+  const product = data?.product;
 
   useEffect(() => {
-    if (data?.ok) {
-      router.push(`/products/${data.product.id}`);
+    if (product?.name) setValue("name", product.name);
+    if (product?.price) setValue("price", product.price);
+    if (product?.image) setValue("image", product.image);
+    if (product?.description) setValue("description", product.description);
+    if (product?.category) setValue("category", product.category);
+    if (product?.id) setValue("id", product.id);
+  }, [setValue, product]);
+
+  useEffect(() => {
+    if (updateData?.ok) {
+      router.push(`/products/${updateData.product.id}`);
     }
-  }, [data, router]);
+  }, [updateData, router]);
+
+  useEffect(() => {
+    if (deleteData?.ok) {
+      router.push("/");
+    }
+  }, [deleteData, router]);
+
+  if (!data?.ok) {
+    return <div>Loading...</div>;
+  }
+  if (data?.ok && !data) {
+    router.push("/products/upload");
+  }
+
+  const onValid = (data: EditProductForm) => {
+    if (loading) return;
+    console.log("upload product: ", data);
+    editProduct(data);
+  };
+
+  const onDeleteClick = () => {
+    if (deleteLoading) return;
+    console.log("delete product");
+    deleteProduct({});
+  };
 
   return (
     <Layout admin>
@@ -176,13 +222,22 @@ const Upload: NextPage = () => {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{ mt: 3, mb: 10, py: 1.7 }}
+          sx={{ mt: 3, py: 1.7 }}
         >
-          상품 등록
+          상품 수정
+        </Button>
+
+        <Button
+          onClick={onDeleteClick}
+          fullWidth
+          variant="contained"
+          sx={{ mt: 1, mb: 10, py: 1.7 }}
+        >
+          상품 삭제
         </Button>
       </form>
     </Layout>
   );
 };
 
-export default Upload;
+export default Edit;
