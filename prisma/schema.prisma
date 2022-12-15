@@ -80,6 +80,7 @@ model Product {
   id          Int      @id @default(autoincrement())
   name        String
   price       Int
+  category    String
   description String   @db.MediumText
   image       String
   createdAt   DateTime @default(now()) @map(name: "created_at")
