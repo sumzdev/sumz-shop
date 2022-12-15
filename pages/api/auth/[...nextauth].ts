@@ -1,11 +1,13 @@
 import client from "@libs/server/client";
-import { NextApiHandler } from "next";
+import { NextApiHandler, NextApiRequest } from "next";
 import NextAuth from "next-auth/next";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import KakaoProvider from "next-auth/providers/kakao";
 import bcrypt from "bcrypt";
+import { Session, User } from "@prisma/client";
+import { randomBytes, randomUUID } from "crypto";
 
 const options = {
   adapter: PrismaAdapter(client),
@@ -20,12 +22,12 @@ const options = {
     }),
     CredentialsProvider({
       id: "email-password-credeintials",
-      name: "sumz",
+      name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text", placeholder: "Email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any) {
+      async authorize(credentials: any, req: NextApiRequest) {
         if (!credentials) {
           throw new Error("잘못된 입력값으로 인한 오류가 발생했습니다.");
         }
@@ -38,26 +40,37 @@ const options = {
         });
 
         if (!exUser) {
-          throw new Error("존재하지 않는 아이디입니다.");
+          throw new Error("notExist");
         }
 
         if (!exUser.password) {
-          throw new Error("다른 로그인 방식을 이용해 주세요.");
+          throw new Error("other");
         }
 
         const result = await bcrypt.compare(password, exUser.password);
-        if (!result) throw new Error("비밀번호가 일치하지 않습니다.");
-        console.log(exUser);
+        if (!result) {
+          throw new Error("notEqual");
+        }
 
+        // return exUser as User & {
+        //   sessions: Session[];
+        // };
         return exUser as any;
       },
     }),
   ],
+  pages: {
+    signIn: "enter",
+  },
   callbacks: {
     async jwt({ token }) {
       return token;
     },
-    async session({ session }) {
+    async session({ session, token, user }) {
+      if (token) {
+        session.id = token.id;
+      }
+
       const exUser = await client.user.findUnique({
         where: { email: session.user?.email },
         select: {
@@ -72,6 +85,9 @@ const options = {
       session.user = exUser;
       return session;
     },
+  },
+  session: {
+    strategy: "jwt" as const,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

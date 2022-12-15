@@ -4,7 +4,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 type ApiLoginBody = {
@@ -21,44 +21,60 @@ const loginHelper = {
     required: "비밀번호를 입력해 주세요",
     notEqual: "비밀번호가 일치하지 않습니다.",
   },
+  resError: {
+    notExist: "존재하지 않는 아이디입니다.",
+    other: "소셜 로그인 방식을 이용해 주세요.",
+  },
 };
 
 export default function Enter() {
   const router = useRouter();
+  const [resError, setResError] = useState("");
   const { data: session, status } = useSession();
 
-  const {
-    handleSubmit,
-    control,
-    register,
-    formState: errors,
-  } = useForm<ApiLoginBody>({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
+  const { handleSubmit, control, setError, resetField, reset } =
+    useForm<ApiLoginBody>({
+      defaultValues: {
+        email: "",
+        password: "",
+      },
+    });
 
   const onSubmit = useCallback(
     async (body: ApiLoginBody) => {
       try {
-        console.log(body);
-        const result = await signIn("sumz", {
+        const result = await signIn("email-password-credeintials", {
           redirect: false,
           ...body,
           email: body.email,
           password: body.password,
         });
-        if (result?.error) {
-          console.log("에러", result.error);
+
+        if (!result?.error) {
+          // console.log("로그인 성공", body.email);
+          router.push("/");
         }
-        console.log("로그인 성공");
-        router.push("/");
+        switch (result.error) {
+          case "notEqual":
+            resetField("password");
+            setError("password", { message: loginHelper.password.notEqual });
+            break;
+          case "notExist":
+            reset();
+            setResError(loginHelper.resError.notExist);
+            break;
+          case "other":
+            reset();
+            setResError(loginHelper.resError.other);
+            break;
+          default:
+            setResError(result.error);
+        }
       } catch (error) {
-        console.log("에러", error);
+        console.log(error);
       }
     },
-    [router]
+    [reset, resetField, router, setError]
   );
 
   return (
@@ -128,6 +144,7 @@ export default function Enter() {
           >
             로그인
           </Button>
+          {resError !== "" && <p className="text-red-700">{resError}</p>}
         </form>
 
         <Button className="self-end">
