@@ -8,6 +8,14 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
   const { email, password, name } = req.body;
+
+  const searchUser = await client.user.findUnique({
+    where: { email },
+  });
+  if (searchUser) {
+    return res.status(409).json({ ok: false, message: "duplicate" });
+  }
+
   if (!email || !password || !name) {
     return res.status(400).json({ ok: false });
   }
