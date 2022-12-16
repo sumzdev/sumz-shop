@@ -1,8 +1,10 @@
-import { Box, Container } from "@mui/system";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import FloatingButton from "./floating-button";
+import LogoutIcon from "@mui/icons-material/Logout";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import { Button } from "@mui/material";
+import { signOut } from "next-auth/react";
 
 interface LayoutProps {
   admin?: boolean;
@@ -11,21 +13,51 @@ interface LayoutProps {
 }
 
 export default function Layout({ admin, login, children }: LayoutProps) {
-  const router = useRouter();
-
   return (
-    <Container className="flex items-center w-full h-full justify-center">
-      <div className="my-14 flex items-center justify-center">
-        <Link
-          href="/"
-          className="flex flex-row items-center justify-center gap-3"
-        >
-          <Image src="/sumz.svg" alt="Sumz Logo" width={72} height={72} />
-          <p className="text-4xl font-bold text-center  ">SUMZ</p>
-        </Link>
+    <div className="flex flex-col items-center w-full h-full justify-center">
+      <div className="border-b-[1px] w-full">
+        <div className="flex flex-col sm:flex-row items-center sm:items-end mx-4 sm:mx-10 md:mx-20 justify-between">
+          <div className="mt-14 mb-5 flex items-center justify-center">
+            <Link
+              href="/"
+              className="flex flex-row items-center justify-center gap-3 w-[180px]"
+            >
+              <Image src="/sumz.svg" alt="Sumz Logo" width={72} height={72} />
+              <p className="text-4xl font-bold text-center  ">SUMZ</p>
+            </Link>
+          </div>
+
+          <div className="flex mt-5 mb-3 justify-end w-full">
+            {!!login ? (
+              <>
+                <Link href={"/cart"}>
+                  <Button sx={{ py: 2 }}>
+                    <ShoppingCartOutlinedIcon />
+                  </Button>
+                </Link>
+
+                <Link href={"/fav"}>
+                  <Button sx={{ py: 2 }}>
+                    <BookmarkBorderIcon />
+                  </Button>
+                </Link>
+
+                <Button sx={{ py: 2 }} onClick={() => signOut()}>
+                  <LogoutIcon />
+                </Button>
+              </>
+            ) : (
+              <div>
+                <Link href={"/enter"} className="">
+                  <Button>Login</Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      <Box className="h-full w-full">{children}</Box>
-    </Container>
+      <div className="h-full w-full mt-5">{children}</div>
+    </div>
   );
 }

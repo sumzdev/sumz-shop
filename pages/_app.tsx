@@ -5,6 +5,7 @@ import Head from "next/head";
 import { SessionProvider } from "next-auth/react";
 import { createTheme, ThemeProvider } from "@mui/material";
 import { SWRConfig } from "swr";
+import { Session } from "next-auth";
 
 const lightTheme = createTheme({
   palette: {
@@ -32,7 +33,10 @@ const darkTheme = createTheme({
   },
 });
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+  Component,
+  pageProps,
+}: AppProps<{ session: Session }>) {
   return (
     <ThemeProvider theme={lightTheme}>
       <Head>

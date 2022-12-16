@@ -52,9 +52,7 @@ const options = {
           throw new Error("notEqual");
         }
 
-        // return exUser as User & {
-        //   sessions: Session[];
-        // };
+        console.log("login", exUser);
         return exUser as any;
       },
     }),
@@ -76,6 +74,7 @@ const options = {
         select: {
           id: true,
           email: true,
+          name: true,
           role: true,
           favlist: true,
           cartlist: true,
