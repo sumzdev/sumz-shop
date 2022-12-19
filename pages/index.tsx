@@ -19,8 +19,8 @@ interface ProductsResponse {
 export interface SearchFilter {
   keyword: string;
   category: string;
-  priceMin: number;
-  priceMax: number;
+  priceMin: number | "";
+  priceMax: number | "";
 }
 
 function Home() {
@@ -29,18 +29,18 @@ function Home() {
   const [filter, setFilter] = useState<SearchFilter>({
     keyword: "",
     category: "",
-    priceMin: 0,
-    priceMax: 0,
+    priceMin: "",
+    priceMax: "",
   });
 
   console.log(filter);
 
   const searchFilterPrice = useCallback(
-    (priceMin: number, priceMax: number) => {
+    (priceMin: number | "", priceMax: number | "") => {
       setFilter({ ...filter, priceMin, priceMax });
 
-      // TODO: set chip
       // TODO: products api
+      console.log("update (price) products list");
     },
     [filter]
   );
@@ -49,8 +49,8 @@ function Home() {
     (keyword: string) => {
       setFilter({ ...filter, keyword });
 
-      // TODO: set chip
       // TODO: products api
+      console.log("update (keyword) products list");
     },
     [filter]
   );
@@ -59,8 +59,8 @@ function Home() {
     (category: string) => {
       setFilter({ ...filter, category });
 
-      // TODO: set chip
       // TODO: products api
+      console.log("update (category) products list");
     },
     [filter]
   );
@@ -77,6 +77,7 @@ function Home() {
   if (!data || status === "loading") {
     return <ProductsLoad />;
   }
+  const productNames = data ? data.products.map((product) => product.name) : [];
 
   return (
     <Layout
@@ -84,9 +85,11 @@ function Home() {
       login={status === "authenticated"}
     >
       <Search
+        searchFilter={filter}
         searchPrice={searchFilterPrice}
         searchCategory={searchFilterCategory}
         searchKeyword={searchFilterKeyword}
+        productNames={productNames}
       />
 
       <div className="flex flex-col items-center justify-center w-full px-10">

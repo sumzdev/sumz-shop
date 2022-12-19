@@ -9,11 +9,11 @@ import {
 
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
-import { SearchForm } from "./search";
+import { SearchFilter } from "pages";
 
 interface PriceRangeType {
-  priceMin: number;
-  priceMax: number;
+  priceMin: number | "";
+  priceMax: number | "";
   name: string;
 }
 
@@ -47,53 +47,65 @@ const PRICE_RANGE: Record<string, PriceRangeType> = {
 
 interface SearchFilterPriceProps {
   // setValue: UseFormSetValue<SearchForm>;
-  control: Control<SearchForm>;
-  getValues: UseFormGetValues<SearchForm>;
-  setValue: UseFormSetValue<SearchForm>;
-  setPriceMin: (min: number | undefined) => void;
-  setPriceMax: (max: number | undefined) => void;
+  control: Control<SearchFilter>;
+  getValues: UseFormGetValues<SearchFilter>;
+  setValue: UseFormSetValue<SearchFilter>;
+  maxPrice: number;
+  searchPrice: (priceMin: number | "", priceMax: number | "") => void;
+  prevPriceMin: number | "";
+  prevPriceMax: number | "";
   handleClose: () => void;
 }
 
 export default function SearchFilterPrice(props: SearchFilterPriceProps) {
   const {
-    setPriceMin,
-    setPriceMax,
-    getValues,
     control,
-    handleClose,
+    getValues,
     setValue,
+    maxPrice,
+    searchPrice,
+    prevPriceMin,
+    prevPriceMax,
+    handleClose,
   } = props;
 
   const [selectRange, setSelectRange] = useState("");
 
   const handleClickAway = useCallback(() => {
-    const min = getValues("priceMin");
-    const max = getValues("priceMax");
-    setValue("priceMinInput", min);
-    setValue("priceMaxInput", max);
+    setValue("priceMin", prevPriceMin);
+    setValue("priceMax", prevPriceMax);
     setSelectRange("");
     handleClose();
-  }, [getValues, handleClose, setValue]);
+  }, [handleClose, prevPriceMax, prevPriceMin, setValue]);
 
   return (
     <ClickAwayListener onClickAway={() => handleClickAway()}>
       <div className="border px-3 py-5 bg-white shadow-md">
         <div className="flex gap-2 px-10 items-center">
           <Controller
-            name="priceMinInput"
+            name="priceMin"
             control={control}
             render={({ field }) => (
-              <TextField {...field} type="number" sx={{ h: "0.5rem" }} />
+              <TextField
+                {...field}
+                type="number"
+                sx={{ h: "0.5rem" }}
+                placeholder="0"
+              />
             )}
           />
           <div>{"원 ~ "}</div>
 
           <Controller
-            name="priceMaxInput"
+            name="priceMax"
             control={control}
             render={({ field }) => (
-              <TextField {...field} type="number" sx={{ h: "0.5rem" }} />
+              <TextField
+                {...field}
+                type="number"
+                sx={{ h: "0.5rem" }}
+                placeholder={String(maxPrice)}
+              />
             )}
           />
           <div>{" 원"}</div>
@@ -101,15 +113,13 @@ export default function SearchFilterPrice(props: SearchFilterPriceProps) {
           <Button
             variant="contained"
             onClick={() => {
-              setPriceMin(getValues("priceMinInput"));
-              setPriceMax(getValues("priceMaxInput"));
-              console.log(
-                getValues("priceMinInput"),
-                getValues("priceMaxInput")
-              );
+              const inputMin = getValues("priceMin");
+              const inputMax = getValues("priceMax");
+              const setMinPrice = inputMin === "" ? 0 : inputMin;
+              const setMaxPrice = inputMax === "" ? maxPrice : inputMax;
+              searchPrice(setMinPrice, setMaxPrice);
+
               handleClose();
-              // TODO: set filter
-              // TODO: set chip
             }}
           >
             적용
@@ -125,8 +135,8 @@ export default function SearchFilterPrice(props: SearchFilterPriceProps) {
                 <li key={value}>
                   <Button
                     onClick={() => {
-                      setValue("priceMinInput", priceMin);
-                      setValue("priceMaxInput", priceMax);
+                      setValue("priceMin", priceMin);
+                      setValue("priceMax", priceMax);
                       setSelectRange(value);
                     }}
                   >
