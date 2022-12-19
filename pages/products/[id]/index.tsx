@@ -6,7 +6,7 @@ import Layout from "@components/layout";
 import ProductDetailLoad from "@components/productDetailLoad";
 import { Button, Container } from "@mui/material";
 import { Product } from "@prisma/client";
-import { Category } from "constants/category";
+import { CATEGORY } from "constants/category";
 import { useSession } from "next-auth/react";
 import { rgbDataURL } from "@libs/client/utils";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -74,7 +74,7 @@ const ProductDetail: NextPage = () => {
             <div>
               <h1 className="text-3xl">{product?.name}</h1>
               {product?.category && (
-                <p className="text-lg mt-4">{Category[product?.category]}</p>
+                <p className="text-lg mt-4">{CATEGORY[product?.category]}</p>
               )}
               <p className="text-xl text-gray-600 mt-3 text-right">
                 {product?.price} 원

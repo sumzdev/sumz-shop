@@ -1,6 +1,6 @@
 import { rgbDataURL } from "@libs/client/utils";
 import { Button, Container } from "@mui/material";
-import { Category } from "constants/category";
+import { CATEGORY } from "constants/category";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -43,7 +43,7 @@ export default function Item({ name, id, price, category, image }: ItemProps) {
                 {name}
               </h1>
               {category && (
-                <p className="text-lg lg:text-md mt-4">{Category[category]}</p>
+                <p className="text-lg lg:text-md mt-4">{CATEGORY[category]}</p>
               )}
             </div>
             <p className="text-xl lg:text-base text-gray-600 pr-4 text-right">

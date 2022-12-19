@@ -8,6 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Product } from "@prisma/client";
+import { CATEGORY_OPTIONS } from "constants/category";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -26,26 +27,19 @@ interface UploadProductMutation {
   product: Product;
 }
 
-const uploadHelper = {
-  name: {
+const UPLOAD_HELPER = {
+  NAME: {
     required: "상품명을 입력해 주세요.",
     duplicate: "이미 존재하는 상품명 입니다.",
   },
-  price: {
+  PRICE: {
     required: "상품 가격을 입력해 주세요.",
     pattern: "0 이상의 원 단위 가격을 입력해주세요.",
   },
-  category: {
+  CATEGORY: {
     required: "카테고리를 선택해 주세요.",
   },
 };
-
-const categoryOptions = [
-  { value: "men's clothing", label: "남성패션" },
-  { value: "women's clothing", label: "여성패션" },
-  { value: "electronics", label: "디지털" },
-  { value: "jewelery", label: "액세서리" },
-];
 
 const Upload: NextPage = () => {
   const router = useRouter();
@@ -83,7 +77,7 @@ const Upload: NextPage = () => {
           name="name"
           control={control}
           rules={{
-            required: { value: true, message: uploadHelper.name.required },
+            required: { value: true, message: UPLOAD_HELPER.NAME.required },
           }}
           render={({ field, fieldState: { error } }) => (
             <TextField
@@ -109,7 +103,7 @@ const Upload: NextPage = () => {
           name="category"
           control={control}
           rules={{
-            required: { value: true, message: uploadHelper.category.required },
+            required: { value: true, message: UPLOAD_HELPER.CATEGORY.required },
           }}
           render={({ field, fieldState: { error } }) => (
             <>
@@ -122,7 +116,7 @@ const Upload: NextPage = () => {
                 error={!!error}
                 helperText={error ? error.message : ""}
               >
-                {categoryOptions.map((option) => (
+                {CATEGORY_OPTIONS.map((option) => (
                   <MenuItem key={option.label} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -136,10 +130,10 @@ const Upload: NextPage = () => {
           name="price"
           control={control}
           rules={{
-            required: { value: true, message: uploadHelper.price.required },
+            required: { value: true, message: UPLOAD_HELPER.PRICE.required },
             pattern: {
               value: /^\d+$/,
-              message: uploadHelper.price.pattern,
+              message: UPLOAD_HELPER.PRICE.pattern,
             },
           }}
           render={({ field, fieldState: { error } }) => (

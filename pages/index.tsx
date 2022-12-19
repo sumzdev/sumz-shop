@@ -1,23 +1,69 @@
 import useSWR from "swr";
 import Layout from "@components/layout";
 import { Product, Role } from "@prisma/client";
-import { Container } from "@mui/system";
 import Item from "@components/item";
 import ProductsLoad from "@components/productsLoad";
 import { getSession, useSession } from "next-auth/react";
 import FloatingButton from "@components/floating-button";
 import AddIcon from "@mui/icons-material/Add";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { NextPageContext } from "next";
-
+import Search from "@components/search";
+import { useCallback } from "react";
 interface ProductsResponse {
   ok: boolean;
   products: Product[];
 }
 
+export interface SearchFilter {
+  keyword: string;
+  category: string;
+  priceMin: number;
+  priceMax: number;
+}
+
 function Home() {
   const { data: userData, status } = useSession();
+
+  const [filter, setFilter] = useState<SearchFilter>({
+    keyword: "",
+    category: "",
+    priceMin: 0,
+    priceMax: 0,
+  });
+
+  console.log(filter);
+
+  const searchFilterPrice = useCallback(
+    (priceMin: number, priceMax: number) => {
+      setFilter({ ...filter, priceMin, priceMax });
+
+      // TODO: set chip
+      // TODO: products api
+    },
+    [filter]
+  );
+
+  const searchFilterKeyword = useCallback(
+    (keyword: string) => {
+      setFilter({ ...filter, keyword });
+
+      // TODO: set chip
+      // TODO: products api
+    },
+    [filter]
+  );
+
+  const searchFilterCategory = useCallback(
+    (category: string) => {
+      setFilter({ ...filter, category });
+
+      // TODO: set chip
+      // TODO: products api
+    },
+    [filter]
+  );
 
   useEffect(() => {
     console.log("userData", userData);
@@ -37,8 +83,13 @@ function Home() {
       admin={userData?.user?.email === Role.ADMIN}
       login={status === "authenticated"}
     >
-      <Container className="flex flex-col items-center justify-center w-full">
-        <div className="border">상품 검색 필터</div>
+      <Search
+        searchPrice={searchFilterPrice}
+        searchCategory={searchFilterCategory}
+        searchKeyword={searchFilterKeyword}
+      />
+
+      <div className="flex flex-col items-center justify-center w-full px-10">
         <div className="mt-10 my-20 grid gap-10 lg:grid-cols-3">
           {data.products?.map((product: Product) => (
             <Item
@@ -51,7 +102,7 @@ function Home() {
             />
           ))}
         </div>
-      </Container>
+      </div>
 
       {userData?.user?.role === Role.ADMIN && (
         <FloatingButton href={`/products/upload`} text="상품 추가하기">
