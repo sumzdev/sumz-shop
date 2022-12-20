@@ -181,8 +181,6 @@ export default function Enter() {
             </Button>
           </Box>
         </Box>
-
-        {session?.user && <p>{session.user.email}</p>}
       </Container>
     </Layout>
   );

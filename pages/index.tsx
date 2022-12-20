@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { NextPageContext } from "next";
 import Search from "@components/search";
 import { useCallback } from "react";
+import { Session } from "next-auth";
 interface ProductsResponse {
   ok: boolean;
   products: Product[];
@@ -23,9 +24,11 @@ export interface SearchFilter {
   priceMax: number | "";
 }
 
-function Home() {
-  const { data: userData, status } = useSession();
+interface HomeProps {
+  session: Session;
+}
 
+function Home({ session }: HomeProps) {
   const [filter, setFilter] = useState<SearchFilter>({
     keyword: "",
     category: "",
@@ -65,25 +68,14 @@ function Home() {
     [filter]
   );
 
-  useEffect(() => {
-    console.log("userData", userData);
-  }, [userData]);
-
-  useEffect(() => {
-    console.log("status", status);
-  }, [status]);
-
   const { data } = useSWR<ProductsResponse>("/api/products");
-  if (!data || status === "loading") {
+  if (!data) {
     return <ProductsLoad />;
   }
   const productNames = data ? data.products.map((product) => product.name) : [];
 
   return (
-    <Layout
-      admin={userData?.user?.email === Role.ADMIN}
-      login={status === "authenticated"}
-    >
+    <Layout admin={session?.user?.role === Role.ADMIN} login={!!session?.user}>
       <Search
         searchFilter={filter}
         searchPrice={searchFilterPrice}
@@ -107,14 +99,11 @@ function Home() {
         </div>
       </div>
 
-      {userData?.user?.role === Role.ADMIN && (
+      {session?.user?.role === Role.ADMIN && (
         <FloatingButton href={`/products/upload`} text="상품 추가하기">
           <AddIcon />
         </FloatingButton>
       )}
-
-      {userData?.user?.email}
-      {userData?.user?.role === Role.ADMIN}
     </Layout>
   );
 }
