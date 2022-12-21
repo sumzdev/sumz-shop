@@ -1,18 +1,19 @@
 import useSWR from "swr";
-import { NextPage } from "next";
+import { NextPage, NextPageContext } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Layout from "@components/layout";
 import ProductDetailLoad from "@components/productDetailLoad";
 import { Button, Container } from "@mui/material";
-import { Product } from "@prisma/client";
-import { Category } from "constants/category";
-import { useSession } from "next-auth/react";
+import { Product, Role } from "@prisma/client";
+import { CATEGORY } from "constants/category";
+import { getSession, useSession } from "next-auth/react";
 import { rgbDataURL } from "@libs/client/utils";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import EditIcon from "@mui/icons-material/Edit";
 import FloatingButton from "@components/floating-button";
+import { Session } from "next-auth";
 
 interface ProductDetailResponse {
   ok: boolean;
@@ -20,14 +21,17 @@ interface ProductDetailResponse {
   isFavorited: boolean;
 }
 
-const ProductDetail: NextPage = () => {
-  const { data: user, status } = useSession();
-  // TODO: admin
-  const admin = true;
+interface ProductDetailProps {
+  session: Session;
+}
+
+const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
+  const { user } = session;
+  const admin = user?.role === Role.ADMIN;
 
   const router = useRouter();
 
-  const { data, mutate } = useSWR<ProductDetailResponse>(
+  const { data } = useSWR<ProductDetailResponse>(
     router.query.id ? `/api/products/${router.query.id}` : null
   );
 
@@ -74,7 +78,7 @@ const ProductDetail: NextPage = () => {
             <div>
               <h1 className="text-3xl">{product?.name}</h1>
               {product?.category && (
-                <p className="text-lg mt-4">{Category[product?.category]}</p>
+                <p className="text-lg mt-4">{CATEGORY[product?.category]}</p>
               )}
               <p className="text-xl text-gray-600 mt-3 text-right">
                 {product?.price} 원
@@ -115,4 +119,12 @@ const ProductDetail: NextPage = () => {
     </Layout>
   );
 };
+
+export async function getServerSideProps(context: NextPageContext) {
+  const session = await getSession(context);
+  return {
+    props: { session },
+  };
+}
+
 export default ProductDetail;

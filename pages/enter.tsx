@@ -5,6 +5,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -41,7 +42,15 @@ export default function Enter() {
       },
     });
 
+  useEffect(() => {
+    // 소셜 로그인
+    if (status === "authenticated" && session?.user) {
+      router.push("/");
+    }
+  }, [router, session, status]);
+
   const onSubmit = useCallback(
+    // email/password 로그인
     async (body: ApiLoginBody) => {
       try {
         const result = await signIn("email-password-credeintials", {
@@ -51,10 +60,12 @@ export default function Enter() {
           password: body.password,
         });
 
+        console.log(result);
         if (!result?.error) {
-          // console.log("로그인 성공", body.email);
+          console.log("로그인 성공", body.email);
           router.push("/");
         }
+
         switch (result.error) {
           case "notEqual":
             resetField("password");
@@ -169,27 +180,6 @@ export default function Enter() {
               Sign in with Kakao
             </Button>
           </Box>
-        </Box>
-
-        <Box className="mt-10">
-          {session?.user && (
-            <button
-              className="bg-slate-300 px-10 py-3 rounded-md"
-              onClick={() => signOut()}
-            >
-              SignOut
-            </button>
-          )}
-
-          <div className="mb-10 border-solid border">
-            <p>Status : {status}</p>
-            {status == "authenticated" && (
-              <>
-                <p>email : {session?.user?.email}</p>
-                <p>name : {session?.user?.name}</p>
-              </>
-            )}
-          </div>
         </Box>
       </Container>
     </Layout>

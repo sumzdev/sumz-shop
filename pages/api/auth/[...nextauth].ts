@@ -52,9 +52,7 @@ const options = {
           throw new Error("notEqual");
         }
 
-        // return exUser as User & {
-        //   sessions: Session[];
-        // };
+        console.log("login", exUser);
         return exUser as any;
       },
     }),
@@ -76,6 +74,7 @@ const options = {
         select: {
           id: true,
           email: true,
+          name: true,
           role: true,
           favlist: true,
           cartlist: true,
@@ -89,6 +88,18 @@ const options = {
   session: {
     strategy: "jwt" as const,
   },
+  // async signIn({ user, account, profile, email, credentials }) {
+  //   return true;
+  // },
+  // async redirect({ url, baseUrl }) {
+  //   return baseUrl;
+  // },
+  // async session({ session, user, token }) {
+  //   return session;
+  // },
+  // async jwt({ token, user, account, profile, isNewUser }) {
+  //   return token;
+  // },
   secret: process.env.NEXTAUTH_SECRET,
 };
 

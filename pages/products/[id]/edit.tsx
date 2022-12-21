@@ -13,6 +13,7 @@ import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { CATEGORY_OPTIONS } from "constants/category";
 
 interface EditProductForm {
   id: number;
@@ -45,13 +46,6 @@ const uploadHelper = {
     required: "카테고리를 선택해 주세요.",
   },
 };
-
-const categoryOptions = [
-  { value: "men's clothing", label: "남성패션" },
-  { value: "women's clothing", label: "여성패션" },
-  { value: "electronics", label: "디지털" },
-  { value: "jewelery", label: "액세서리" },
-];
 
 const Edit: NextPage = () => {
   const router = useRouter();
@@ -168,7 +162,7 @@ const Edit: NextPage = () => {
                 error={!!error}
                 helperText={error ? error.message : ""}
               >
-                {categoryOptions.map((option) => (
+                {CATEGORY_OPTIONS.map((option) => (
                   <MenuItem key={option.label} value={option.value}>
                     {option.label}
                   </MenuItem>
