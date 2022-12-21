@@ -9,41 +9,51 @@ import {
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import { CATEGORY_OPTIONS, CATEGORY } from "constants/category";
-import { SearchFilter } from "pages";
 import { useEffect } from "react";
 import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import SearchFilterPrice from "./searchFilterPrice";
 import { AutocompleteChangeReason } from "@mui/material";
+import { useRouter } from "next/router";
+
+export interface SearchFilterType {
+  keyword: string;
+  category: string;
+  priceMin: number | "";
+  priceMax: number | "";
+}
 
 interface PriceResponse {
   ok: boolean;
   maxPrice: number;
 }
 interface SearchProps {
-  searchFilter: SearchFilter;
-  searchPrice: (priceMin: number | "", priceMax: number | "") => void;
-  searchCategory: (category: string) => void;
-  searchKeyword: (keyword: string) => void;
+  search: (
+    key: "category" | "price" | "keyword",
+    value?: string,
+    priceMinMax?: [string | number, string | number]
+  ) => void;
+  removeFilter: (type: "category" | "price" | "keyword") => void;
   productNames: string[];
 }
 
 export default function Search({
-  searchFilter,
-  searchPrice,
-  searchCategory,
-  searchKeyword,
+  search,
+  removeFilter,
   productNames,
 }: SearchProps) {
+  const router = useRouter();
+
   // search form
-  const { setValue, getValues, resetField, control } = useForm<SearchFilter>({
-    defaultValues: {
-      keyword: "",
-      priceMin: "",
-      priceMax: "",
-      category: "",
-    },
-  });
+  const { setValue, getValues, resetField, control } =
+    useForm<SearchFilterType>({
+      defaultValues: {
+        keyword: "",
+        priceMin: "",
+        priceMax: "",
+        category: "",
+      },
+    });
 
   // keyword
   const [keyword, setKeyword] = useState<string | null>(null);
@@ -57,9 +67,9 @@ export default function Search({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const selectedCategory = event.target.value;
       setValue("category", selectedCategory);
-      searchCategory(selectedCategory);
+      search("category", selectedCategory);
     },
-    [searchCategory, setValue]
+    [search, setValue]
   );
 
   // price section
@@ -80,15 +90,15 @@ export default function Search({
     switch (type) {
       case "category":
         resetField("category");
-        searchCategory("");
+        removeFilter("category");
         break;
       case "price":
         resetField("priceMin");
         resetField("priceMax");
-        searchPrice("", "");
+        removeFilter("price");
         break;
       case "keyword":
-        searchKeyword("");
+        removeFilter("keyword");
         break;
     }
   };
@@ -102,15 +112,14 @@ export default function Search({
           value={keyword ? [keyword] : null}
           onChange={(
             event: React.SyntheticEvent<Element, Event>,
-            newValue: string[],
+            newValue: (string | string[])[],
             reason: AutocompleteChangeReason
           ) => {
             if (reason === "selectOption") {
               if (newValue instanceof Array) {
-                const stringValue = newValue.reduce((acc, v) => acc.concat(v));
-                searchKeyword(stringValue);
+                search("keyword", newValue.join(""));
               } else {
-                searchKeyword(newValue);
+                search("keyword", newValue);
               }
               setKeyword(null);
               (document.activeElement as HTMLElement).blur();
@@ -121,11 +130,11 @@ export default function Search({
               {...params}
               label="Search"
               fullWidth
-              onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+              onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
                 if (event.code === "Enter") {
                   const inputValue = (event.target as HTMLInputElement).value;
                   if (inputValue) {
-                    searchKeyword(inputValue);
+                    search("keyword", inputValue);
                     setKeyword(null);
                   }
                   (document.activeElement as HTMLElement).blur();
@@ -167,41 +176,52 @@ export default function Search({
         </Button>
         <Popper id={id} open={open} anchorEl={anchorEl} placement="bottom-end">
           <SearchFilterPrice
-            prevPriceMin={searchFilter.priceMin}
-            prevPriceMax={searchFilter.priceMax}
-            searchPrice={searchPrice}
+            search={search}
             getValues={getValues}
             control={control}
             setValue={setValue}
             maxPrice={maxPrice}
             handleClose={cancleSelectPrice}
+            prevPriceMin={
+              router.query.priceMin
+                ? parseInt(router.query.priceMin.toString())
+                : null
+            }
+            prevPriceMax={
+              router.query.priceMax
+                ? parseInt(router.query.priceMax.toString())
+                : null
+            }
           />
         </Popper>
       </form>
 
-      {searchFilter.keyword !== "" ||
-      searchFilter.category !== "" ||
-      searchFilter.priceMin !== "" ||
-      searchFilter.priceMax !== "" ? (
+      {!!router.query.keyword ||
+      !!router.query.category ||
+      !!router.query.priceMin ||
+      !!router.query.priceMax ? (
         <div className="mt-5">
           <Stack direction="row" spacing={1}>
-            {searchFilter.keyword && (
+            {!!router.query.keyword && (
               <Chip
-                label={searchFilter.keyword}
+                label={router.query.keyword}
                 onDelete={() => handleDelete("keyword")}
               />
             )}
 
-            {searchFilter.category !== "" && (
-              <Chip
-                label={CATEGORY[searchFilter.category]}
-                onDelete={() => handleDelete("category")}
-              />
-            )}
+            {!!router.query.category &&
+              Object.keys(CATEGORY).includes(
+                router.query.category.toString()
+              ) && (
+                <Chip
+                  label={CATEGORY[router.query.category.toString()]}
+                  onDelete={() => handleDelete("category")}
+                />
+              )}
 
-            {searchFilter.priceMin !== "" || searchFilter.priceMax !== "" ? (
+            {!!router.query.priceMin || !!router.query.priceMax ? (
               <Chip
-                label={`${searchFilter.priceMin}원 ~ ${searchFilter.priceMax}원`}
+                label={`${router.query.priceMin}원 ~ ${router.query.priceMax}원`}
                 onDelete={() => handleDelete("price")}
               />
             ) : null}

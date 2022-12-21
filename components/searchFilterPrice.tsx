@@ -9,11 +9,11 @@ import {
 
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
-import { SearchFilter } from "pages";
+import { SearchFilterType } from "./search";
 
 interface PriceRangeType {
-  priceMin: number | "";
-  priceMax: number | "";
+  priceMin: number;
+  priceMax: number;
   name: string;
 }
 
@@ -47,13 +47,17 @@ const PRICE_RANGE: Record<string, PriceRangeType> = {
 
 interface SearchFilterPriceProps {
   // setValue: UseFormSetValue<SearchForm>;
-  control: Control<SearchFilter>;
-  getValues: UseFormGetValues<SearchFilter>;
-  setValue: UseFormSetValue<SearchFilter>;
+  control: Control<SearchFilterType>;
+  getValues: UseFormGetValues<SearchFilterType>;
+  setValue: UseFormSetValue<SearchFilterType>;
   maxPrice: number;
-  searchPrice: (priceMin: number | "", priceMax: number | "") => void;
-  prevPriceMin: number | "";
-  prevPriceMax: number | "";
+  search: (
+    key: "category" | "price" | "keyword",
+    value?: string,
+    priceMinMax?: [string | number, string | number]
+  ) => void;
+  prevPriceMin: number;
+  prevPriceMax: number;
   handleClose: () => void;
 }
 
@@ -63,7 +67,7 @@ export default function SearchFilterPrice(props: SearchFilterPriceProps) {
     getValues,
     setValue,
     maxPrice,
-    searchPrice,
+    search,
     prevPriceMin,
     prevPriceMax,
     handleClose,
@@ -115,10 +119,9 @@ export default function SearchFilterPrice(props: SearchFilterPriceProps) {
             onClick={() => {
               const inputMin = getValues("priceMin");
               const inputMax = getValues("priceMax");
-              const setMinPrice = inputMin === "" ? 0 : inputMin;
-              const setMaxPrice = inputMax === "" ? maxPrice : inputMax;
-              searchPrice(setMinPrice, setMaxPrice);
-
+              const setMinPrice = !inputMin ? 0 : inputMin;
+              const setMaxPrice = !inputMax ? maxPrice : inputMax;
+              search("price", "", [setMinPrice, setMaxPrice]);
               handleClose();
             }}
           >
