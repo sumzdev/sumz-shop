@@ -26,7 +26,7 @@ interface CartProps {
 
 const Wishlist: NextPage = ({ session }: CartProps) => {
   const router = useRouter();
-  console.log(session.user.cartlist.length);
+  console.log(session?.user?.cartlist?.length);
 
   const { data, mutate } = useSWR<CartResponse>("/api/users/cartlist");
 

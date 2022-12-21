@@ -30,11 +30,14 @@ export default function Layout({ user, children }: LayoutProps) {
           </div>
 
           <div className="flex mt-5 mb-3 justify-end w-full">
-            {user ? (
+            {!!user ? (
               <>
                 <Link href={"/profile/cart"}>
                   <Button sx={{ py: 2 }}>
-                    <Badge badgeContent={user.cartlist.length} color="warning">
+                    <Badge
+                      badgeContent={user?.cartlist?.length || 0}
+                      color="warning"
+                    >
                       <ShoppingCartOutlinedIcon />
                     </Badge>
                   </Button>

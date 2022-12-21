@@ -65,13 +65,12 @@ const options = {
     },
     async session({ session, token, user }) {
       if (token) {
-        session.id = token.id;
+        session.id = token.sub;
       }
 
-      // TODO:
-      // const exUser = await client.user.findUnique({
+      // console.log(session, token, user);
       const exUser = await client.user.findFirst({
-        where: { id: session.user?.id },
+        where: { id: Number(session.id) },
         select: {
           id: true,
           email: true,
@@ -83,24 +82,13 @@ const options = {
       });
 
       session.user = exUser;
+
       return session;
     },
   },
   session: {
     strategy: "jwt" as const,
   },
-  // async signIn({ user, account, profile, email, credentials }) {
-  //   return true;
-  // },
-  // async redirect({ url, baseUrl }) {
-  //   return baseUrl;
-  // },
-  // async session({ session, user, token }) {
-  //   return session;
-  // },
-  // async jwt({ token, user, account, profile, isNewUser }) {
-  //   return token;
-  // },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
