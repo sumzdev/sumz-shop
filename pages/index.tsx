@@ -13,9 +13,13 @@ import Search from "@components/search";
 import { useCallback } from "react";
 import { Session } from "next-auth";
 import products from "./api/products";
+import Pagination from "@components/pagination";
+import { getParams } from "@libs/client/utils";
+import { Button } from "@mui/material";
 interface ProductsResponse {
   ok: boolean;
   products: Product[];
+  count: number;
 }
 
 interface HomeProps {
@@ -26,19 +30,27 @@ function Home({ session }: HomeProps) {
   const router = useRouter();
   const { pathname, query, asPath } = router;
 
-  // const { data: productRes } = useSWR<ProductsResponse>("/api/products");
+  const pageNum = query.pageIndex ? parseInt(query.pageIndex.toString()) : 1;
+  if (!query.pageIndex) {
+    query.pageIndex = pageNum.toString();
+  }
+
+  const params = getParams(query);
+
   const { data: productRes } = useSWR<ProductsResponse>(
     asPath.replace("/", "/api/products")
   );
 
+  const movePageIndex = useCallback(
+    (pageIdx: number) => {
+      query.pageIndex = pageIdx.toString();
+      router.push(router);
+    },
+    [query, router]
+  );
+
   const removeFilter = useCallback(
     (type: "category" | "price" | "keyword") => {
-      const queryArr = Object.keys(query)
-        .filter((key) => key !== "object Object")
-        .map((key) => [key, query[key].toString()]);
-
-      const params = new URLSearchParams(queryArr);
-
       if (type === "price") {
         params.delete("priceMin");
         params.delete("priceMax");
@@ -48,7 +60,7 @@ function Home({ session }: HomeProps) {
 
       router.replace({ pathname, query: params.toString() }, undefined);
     },
-    [pathname, query, router]
+    [params, pathname, router]
   );
 
   const search = useCallback(
@@ -59,14 +71,14 @@ function Home({ session }: HomeProps) {
     ) => {
       if (key === "price" && priceMinMax) {
         const [priceMin, priceMax] = priceMinMax;
-        router.query.priceMin = priceMin.toString();
-        router.query.priceMax = priceMax.toString();
+        query.priceMin = priceMin.toString();
+        query.priceMax = priceMax.toString();
       } else {
-        router.query[key] = value;
+        query[key] = value;
       }
       router.push(router);
     },
-    [router]
+    [query, router]
   );
 
   const productNames = useMemo(
@@ -87,17 +99,38 @@ function Home({ session }: HomeProps) {
       />
 
       <div className="flex flex-col items-center justify-center w-full px-10">
-        <div className="mt-10 my-20 grid gap-10 lg:grid-cols-3">
-          {productRes.products?.map((product: Product) => (
-            <Item
-              id={product.id}
-              key={product.id}
-              name={product.name}
-              price={product.price}
-              category={product.category}
-              image={product.image}
-            />
-          ))}
+        {!!productRes.count ? (
+          <div className="w-full mt-10 mb-14 grid gap-10 lg:grid-cols-3">
+            {productRes.products?.map((product: Product) => (
+              <Item
+                id={product.id}
+                key={product.id}
+                name={product.name}
+                price={product.price}
+                category={product.category}
+                image={product.image}
+              />
+            ))}
+          </div>
+        ) : (
+          <>
+            <p className="mt-20 mb-6">찾으시는 결과가 없습니다.</p>
+            <Button
+              variant="contained"
+              onClick={() => {
+                router.push("/");
+              }}
+            >
+              전체 상품 보기
+            </Button>
+          </>
+        )}
+        <div className="w-full mb-20 ">
+          <Pagination
+            count={productRes?.count}
+            pageIndex={pageNum}
+            movePageIndex={movePageIndex}
+          />
         </div>
       </div>
 
