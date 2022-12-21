@@ -68,8 +68,10 @@ const options = {
         session.id = token.id;
       }
 
-      const exUser = await client.user.findUnique({
-        where: { email: session.user?.email },
+      // TODO:
+      // const exUser = await client.user.findUnique({
+      const exUser = await client.user.findFirst({
+        where: { id: session.user?.id },
         select: {
           id: true,
           email: true,

@@ -3,17 +3,18 @@ import Link from "next/link";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import { Button } from "@mui/material";
+import { Badge, Button } from "@mui/material";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+import { UserWithInfo } from "types/session";
+import { Role } from "@prisma/client";
 
 interface LayoutProps {
-  admin?: boolean;
-  login?: boolean;
+  user?: UserWithInfo;
   children: React.ReactNode;
 }
 
-export default function Layout({ admin, login, children }: LayoutProps) {
+export default function Layout({ user, children }: LayoutProps) {
   return (
     <div className="flex flex-col items-center w-full h-full justify-center">
       <div className="border-b-[1px] w-full">
@@ -29,11 +30,13 @@ export default function Layout({ admin, login, children }: LayoutProps) {
           </div>
 
           <div className="flex mt-5 mb-3 justify-end w-full">
-            {!!login ? (
+            {user ? (
               <>
-                <Link href={"/cart"}>
+                <Link href={"/profile/cart"}>
                   <Button sx={{ py: 2 }}>
-                    <ShoppingCartOutlinedIcon />
+                    <Badge badgeContent={user.cartlist.length} color="warning">
+                      <ShoppingCartOutlinedIcon />
+                    </Badge>
                   </Button>
                 </Link>
 

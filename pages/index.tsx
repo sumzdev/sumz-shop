@@ -92,7 +92,7 @@ function Home({ session }: HomeProps) {
   }
 
   return (
-    <Layout admin={isAdmin} login={!!session?.user}>
+    <Layout user={session?.user}>
       <Search
         search={search}
         removeFilter={removeFilter}

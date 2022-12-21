@@ -34,8 +34,6 @@ async function handler(
     })
   );
 
-  console.log("isFav:", isFavorited);
-
   res.json({
     ok: true,
     product,

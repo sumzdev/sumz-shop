@@ -78,7 +78,7 @@ const Upload: NextPage = ({ session }: UploadProps) => {
   }
 
   return (
-    <Layout admin={session?.user?.role === Role.ADMIN} login={!!session?.user}>
+    <Layout user={session?.user}>
       <form
         onSubmit={handleSubmit(onValid)}
         className="gap-3 flex flex-col items-center justify-center w-full md:w-3/4 mx-auto my-3"
