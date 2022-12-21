@@ -7,9 +7,11 @@ import {
   TextareaAutosize,
   TextField,
 } from "@mui/material";
-import { Product } from "@prisma/client";
+import { Product, Role } from "@prisma/client";
 import { CATEGORY_OPTIONS } from "constants/category";
-import { NextPage } from "next";
+import { NextPage, NextPageContext } from "next";
+import { Session } from "next-auth";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -41,9 +43,13 @@ const UPLOAD_HELPER = {
   },
 };
 
-const Upload: NextPage = () => {
+interface UploadProps {
+  session: Session;
+}
+
+const Upload: NextPage = ({ session }: UploadProps) => {
   const router = useRouter();
-  const { register, handleSubmit, control } = useForm<UploadProductForm>({
+  const { handleSubmit, control } = useForm<UploadProductForm>({
     defaultValues: {
       name: "",
       price: 0,
@@ -67,8 +73,13 @@ const Upload: NextPage = () => {
     }
   }, [data, router]);
 
+  // TODO: 미들웨어
+  if (session?.user?.role !== Role.ADMIN) {
+    router.push("/");
+  }
+
   return (
-    <Layout admin>
+    <Layout admin={session?.user?.role === Role.ADMIN} login={!!session?.user}>
       <form
         onSubmit={handleSubmit(onValid)}
         className="gap-3 flex flex-col items-center justify-center w-full md:w-3/4 mx-auto my-3"
@@ -178,5 +189,14 @@ const Upload: NextPage = () => {
     </Layout>
   );
 };
+
+export async function getServerSideProps(context: NextPageContext) {
+  const session = await getSession(context);
+  return {
+    props: {
+      session,
+    },
+  };
+}
 
 export default Upload;

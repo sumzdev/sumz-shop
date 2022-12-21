@@ -26,8 +26,7 @@ interface ProductDetailProps {
 }
 
 const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
-  const { user } = session;
-  const admin = user?.role === Role.ADMIN;
+  const isAdmin = session?.user?.role === Role.ADMIN;
 
   const router = useRouter();
 
@@ -54,7 +53,7 @@ const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
   };
 
   return (
-    <Layout>
+    <Layout admin={isAdmin} login={!!session?.user}>
       <Container className="flex flex-col items-center justify-center w-full">
         <div className="flex flex-col md:grid md:grid-cols-2 ">
           <div className="flex w-full mx-auto  items-center justify-center">
@@ -108,7 +107,7 @@ const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
         </div>
       </Container>
 
-      {admin && (
+      {isAdmin && (
         <FloatingButton
           href={`/products/${router.query.id}/edit`}
           text="상품 수정하기"

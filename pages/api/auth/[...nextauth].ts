@@ -52,7 +52,6 @@ const options = {
           throw new Error("notEqual");
         }
 
-        console.log("login", exUser);
         return exUser as any;
       },
     }),

@@ -3,16 +3,15 @@ import Layout from "@components/layout";
 import { Product, Role } from "@prisma/client";
 import Item from "@components/item";
 import ProductsLoad from "@components/productsLoad";
-import { getSession, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import FloatingButton from "@components/floating-button";
 import AddIcon from "@mui/icons-material/Add";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { NextPageContext } from "next";
 import Search from "@components/search";
 import { useCallback } from "react";
 import { Session } from "next-auth";
-import products from "./api/products";
 import Pagination from "@components/pagination";
 import { getParams } from "@libs/client/utils";
 import { Button } from "@mui/material";
@@ -27,6 +26,8 @@ interface HomeProps {
 }
 
 function Home({ session }: HomeProps) {
+  const isAdmin = session?.user?.role === Role.ADMIN;
+
   const router = useRouter();
   const { pathname, query, asPath } = router;
 
@@ -91,7 +92,7 @@ function Home({ session }: HomeProps) {
   }
 
   return (
-    <Layout admin={session?.user?.role === Role.ADMIN} login={!!session?.user}>
+    <Layout admin={isAdmin} login={!!session?.user}>
       <Search
         search={search}
         removeFilter={removeFilter}
@@ -134,7 +135,7 @@ function Home({ session }: HomeProps) {
         </div>
       </div>
 
-      {session?.user?.role === Role.ADMIN && (
+      {isAdmin && (
         <FloatingButton href={`/products/upload`} text="상품 추가하기">
           <AddIcon />
         </FloatingButton>

@@ -1,7 +1,10 @@
 import Layout from "@components/layout";
 import { Button, Container, TextField } from "@mui/material";
 import { Box } from "@mui/system";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { Role } from "@prisma/client";
+import { NextPageContext } from "next";
+import { Session } from "next-auth";
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -29,7 +32,11 @@ const loginHelper = {
   },
 };
 
-export default function Enter() {
+interface EnterProps {
+  loginSession: Session;
+}
+
+function Enter({ loginSession }: EnterProps) {
   const router = useRouter();
   const [resError, setResError] = useState("");
   const { data: session, status } = useSession();
@@ -49,6 +56,11 @@ export default function Enter() {
     }
   }, [router, session, status]);
 
+  // TODO: 미들웨어
+  if (!!loginSession?.user) {
+    router.push("/");
+  }
+
   const onSubmit = useCallback(
     // email/password 로그인
     async (body: ApiLoginBody) => {
@@ -60,9 +72,7 @@ export default function Enter() {
           password: body.password,
         });
 
-        console.log(result);
         if (!result?.error) {
-          console.log("로그인 성공", body.email);
           router.push("/");
         }
 
@@ -185,3 +195,14 @@ export default function Enter() {
     </Layout>
   );
 }
+
+export async function getServerSideProps(context: NextPageContext) {
+  const session = await getSession(context);
+  return {
+    props: {
+      session,
+    },
+  };
+}
+
+export default Enter;
