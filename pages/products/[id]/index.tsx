@@ -7,13 +7,14 @@ import ProductDetailLoad from "@components/productDetailLoad";
 import { Button, Container } from "@mui/material";
 import { Product, Role } from "@prisma/client";
 import { CATEGORY } from "constants/category";
-import { getSession, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import { rgbDataURL } from "@libs/client/utils";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import EditIcon from "@mui/icons-material/Edit";
 import FloatingButton from "@components/floating-button";
 import { Session } from "next-auth";
+import useMutation from "@libs/client/useMutation";
 
 interface ProductDetailResponse {
   ok: boolean;
@@ -30,9 +31,26 @@ const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
 
   const router = useRouter();
 
-  const { data } = useSWR<ProductDetailResponse>(
+  const { data, mutate } = useSWR<ProductDetailResponse>(
     router.query.id ? `/api/products/${router.query.id}` : null
   );
+
+  const product = data?.product;
+
+  const [toggleFav] = useMutation(
+    `/api/products/${router.query.id.toString()}/fav`
+  );
+
+  const onFavClick = () => {
+    toggleFav({}); // 비어있는 body로 post request
+    if (!data) return;
+    mutate({ ...data, isFavorited: !data.isFavorited }, false);
+    // revalidate는 false로 설정 : 캐시만 변경하고, 데이터를 가져오지는 않음
+  };
+
+  const onCartClick = () => {
+    // TODO: cart
+  };
 
   if (!data) {
     return <ProductDetailLoad />;
@@ -41,17 +59,6 @@ const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
   if (data.ok && !data.product) {
     // TODO: 404
   }
-
-  const product = data?.product;
-
-  const onFavFlick = () => {
-    // TODO: fav
-  };
-
-  const onCartClick = () => {
-    // TODO: cart
-  };
-
   return (
     <Layout admin={isAdmin} login={!!session?.user}>
       <Container className="flex flex-col items-center justify-center w-full">
@@ -86,7 +93,7 @@ const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
 
             <div className="grid grid-cols-2 gap-2 mt-8">
               {/* 위시리스트 */}
-              <Button variant="outlined" sx={{ py: 2 }}>
+              <Button variant="outlined" sx={{ py: 2 }} onClick={onFavClick}>
                 {data?.isFavorited ? (
                   <FavoriteIcon className="text-pink-500" />
                 ) : (

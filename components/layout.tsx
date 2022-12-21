@@ -5,6 +5,7 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { Button } from "@mui/material";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 
 interface LayoutProps {
   admin?: boolean;
@@ -23,7 +24,7 @@ export default function Layout({ admin, login, children }: LayoutProps) {
               className="flex flex-row items-center justify-center gap-3 w-[180px]"
             >
               <Image src="/sumz.svg" alt="Sumz Logo" width={72} height={72} />
-              <p className="text-4xl font-bold text-center  ">SUMZ</p>
+              <p className="text-4xl font-bold text-center">SUMZ</p>
             </Link>
           </div>
 
@@ -36,7 +37,7 @@ export default function Layout({ admin, login, children }: LayoutProps) {
                   </Button>
                 </Link>
 
-                <Link href={"/fav"}>
+                <Link href={"/profile/wishlist"}>
                   <Button sx={{ py: 2 }}>
                     <BookmarkBorderIcon />
                   </Button>

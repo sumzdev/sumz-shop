@@ -16,7 +16,7 @@ export default function Item({ name, id, price, category, image }: ItemProps) {
   return (
     <Link
       className="border flex flex-col w-full overflow-hidden group"
-      href={`products/${id}`}
+      href={`/products/${id}`}
     >
       <div className="flex flex-col items-center justify-center w-full">
         <div className="grid grid-cols-2 lg:flex lg:flex-col w-full">

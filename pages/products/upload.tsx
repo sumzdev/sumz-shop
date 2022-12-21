@@ -63,7 +63,6 @@ const Upload: NextPage = ({ session }: UploadProps) => {
 
   const onValid = (data: UploadProductForm) => {
     if (loading) return;
-    console.log("upload product: ", data);
     uploadProduct(data);
   };
 
