@@ -2,6 +2,7 @@ import withHandler, { ResponseType } from "@libs/server/withHandler";
 import { NextApiRequest, NextApiResponse } from "next";
 import client from "@libs/server/client";
 import { Prisma, Product } from "@prisma/client";
+import { PAGE_SIZE } from "constants/products";
 
 async function handler(
   req: NextApiRequest,
@@ -9,54 +10,71 @@ async function handler(
 ) {
   if (req.method === "GET") {
     let products: Product[] = [];
-    if (Object.keys(req.query).length === 0) {
-      products = await client.product.findMany();
-    } else {
-      let filter: Prisma.ProductWhereInput = {};
+    let count: number = -1;
+    let filter: Prisma.ProductWhereInput = {};
 
-      Object.keys(req.query).forEach((key) => {
-        switch (key) {
-          case "category":
-            filter.category = {
-              equals: req.query.category.toString(),
-            };
-            break;
-          case "keyword":
-            filter.name = {
-              contains: req.query.keyword.toString(),
-            };
-            break;
-          case "priceMax":
-            filter.price = {
-              lte: parseInt(req.query.priceMax.toString()),
-            };
-            break;
-        }
-      });
-
-      if (req.query.priceMin) {
-        filter.price["gte"] = req.query.priceMin
-          ? parseInt(req.query.priceMin.toString())
-          : 0;
+    Object.keys(req.query).forEach((key) => {
+      switch (key) {
+        case "category":
+          filter.category = {
+            equals: req.query.category.toString(),
+          };
+          break;
+        case "keyword":
+          filter.name = {
+            contains: req.query.keyword.toString(),
+          };
+          break;
+        case "priceMax":
+          filter.price = {
+            lte: parseInt(req.query.priceMax.toString()),
+          };
+          break;
       }
+    });
 
-      products = await client.product.findMany({
+    if (req.query.priceMin) {
+      filter.price["gte"] = req.query.priceMin
+        ? parseInt(req.query.priceMin.toString())
+        : 0;
+    }
+
+    const pageNum = !!req.query.pageIndex
+      ? parseInt(req.query.pageIndex.toString())
+      : 1;
+
+    [count, products] = await client.$transaction([
+      client.product.count({
         where: {
           ...filter,
         },
-      });
-    }
+      }),
+      client.product.findMany({
+        take: PAGE_SIZE,
+        skip: (pageNum - 1) * PAGE_SIZE,
+        where: {
+          ...filter,
+        },
+      }),
+    ]);
+
+    const maxPrice = Math.max(
+      0,
+      ...products.map((item: Product) => item.price)
+    );
 
     res.json({
       ok: true,
       products,
+      count,
+      maxPrice,
     });
   } else if (req.method === "POST") {
     const {
       body: { name, image, category, price, description },
     } = req;
 
-    const product = await client.product.create({
+    const products = await client.product.create({
       data: {
         name,
         image: image,
@@ -68,7 +86,7 @@ async function handler(
 
     res.json({
       ok: true,
-      product,
+      products,
     });
   }
 }

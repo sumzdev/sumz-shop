@@ -42,16 +42,16 @@ export default function App({
       <Head>
         <title>Sumz Shop</title>
       </Head>
-      <SWRConfig
-        value={{
-          fetcher: (url: string) =>
-            fetch(url).then((response) => response.json()),
-        }}
-      >
-        <SessionProvider session={pageProps.session}>
+      <SessionProvider session={pageProps.session}>
+        <SWRConfig
+          value={{
+            fetcher: (url: string) =>
+              fetch(url).then((response) => response.json()),
+          }}
+        >
           <Component {...pageProps} />
-        </SessionProvider>
-      </SWRConfig>
+        </SWRConfig>
+      </SessionProvider>
     </ThemeProvider>
   );
 }

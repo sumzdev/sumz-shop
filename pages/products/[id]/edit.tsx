@@ -8,12 +8,14 @@ import {
   TextareaAutosize,
   TextField,
 } from "@mui/material";
-import { Product } from "@prisma/client";
-import { NextPage } from "next";
+import { Product, Role } from "@prisma/client";
+import { NextPage, NextPageContext } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { CATEGORY_OPTIONS } from "constants/category";
+import { Session } from "next-auth";
+import { getSession } from "next-auth/react";
 
 interface EditProductForm {
   id: number;
@@ -33,6 +35,10 @@ interface ProductDeleteResponse {
   ok: boolean;
 }
 
+interface EditProps {
+  session: Session;
+}
+
 const uploadHelper = {
   name: {
     required: "상품명을 입력해 주세요.",
@@ -47,12 +53,12 @@ const uploadHelper = {
   },
 };
 
-const Edit: NextPage = () => {
+function Edit({ session }: EditProps) {
   const router = useRouter();
 
   const { setValue, handleSubmit, control } = useForm<EditProductForm>({
     defaultValues: {
-      id: 0,
+      id: parseInt(router.query.id.toString()),
       name: "",
       price: 0,
       image: "",
@@ -103,18 +109,21 @@ const Edit: NextPage = () => {
 
   const onValid = (data: EditProductForm) => {
     if (loading) return;
-    console.log("upload product: ", data);
     editProduct(data);
   };
 
   const onDeleteClick = () => {
     if (deleteLoading) return;
-    console.log("delete product");
     deleteProduct({});
   };
 
+  // TODO: 미들웨어
+  if (session?.user?.role !== Role.ADMIN) {
+    router.push("/");
+  }
+
   return (
-    <Layout admin>
+    <Layout user={session?.user}>
       <form
         onSubmit={handleSubmit(onValid)}
         className="gap-3 flex flex-col items-center justify-center w-full md:w-3/4 mx-auto my-3"
@@ -232,6 +241,15 @@ const Edit: NextPage = () => {
       </form>
     </Layout>
   );
-};
+}
+
+export async function getServerSideProps(context: NextPageContext) {
+  const session = await getSession(context);
+  return {
+    props: {
+      session,
+    },
+  };
+}
 
 export default Edit;

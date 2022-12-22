@@ -7,15 +7,22 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
   const {
-    body: { id, name, image, category, price, description },
+    query: { id: queryId },
+    body: { name, image, category, price, description },
   } = req;
+
+  const id = parseInt(queryId.toString());
 
   const findNameProducts = await client.product.findMany({
     where: {
       name,
+      NOT: {
+        id,
+      },
     },
   });
-  if (findNameProducts.length !== 1 && findNameProducts[0].id !== id) {
+
+  if (findNameProducts.length > 0) {
     res.json({
       ok: false,
       error: "duplicate",

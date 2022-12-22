@@ -2,6 +2,9 @@ import Layout from "@components/layout";
 import useMutation from "@libs/client/useMutation";
 import { Button, TextField } from "@mui/material";
 import { Box, Container } from "@mui/system";
+import { NextPageContext } from "next";
+import { Session } from "next-auth";
+import { getSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -13,6 +16,10 @@ interface IFormInput {
   password: String;
   passwordConfirm: String;
   name: String;
+}
+
+interface SignupProps {
+  session: Session;
 }
 
 const signupHelper = {
@@ -35,7 +42,7 @@ const signupHelper = {
   },
 };
 
-export default function Signup() {
+export default function Signup({ session }: SignupProps) {
   const router = useRouter();
   const { handleSubmit, control, watch, setError } = useForm<IFormInput>({
     defaultValues: {
@@ -65,6 +72,11 @@ export default function Signup() {
       router.push(`/enter`);
     }
   }, [data, router, setError]);
+
+  // TODO: 미들웨어
+  if (!!session?.user) {
+    router.push("/");
+  }
 
   return (
     <Layout>
@@ -192,4 +204,13 @@ export default function Signup() {
       </Container>
     </Layout>
   );
+}
+
+export async function getServerSideProps(context: NextPageContext) {
+  const session = await getSession(context);
+  return {
+    props: {
+      session,
+    },
+  };
 }

@@ -12,16 +12,16 @@ async function handler(
     query: { id },
   } = req;
 
-  const user = session?.user?.email
+  const user = session?.user?.id
     ? await client?.user.findUnique({
         where: {
-          email: session?.user?.email,
+          id: Number(session.user.id.toString()),
         },
       })
     : null;
 
   const product = await client?.product.findUnique({
-    where: { id: Number(id?.toString()) },
+    where: { id: Number(id.toString()) },
   });
 
   const isFavorited = Boolean(
@@ -44,5 +44,4 @@ async function handler(
 export default withHandler({
   methods: ["GET"],
   handler,
-  isPrivate: true,
 });

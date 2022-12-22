@@ -52,7 +52,6 @@ const options = {
           throw new Error("notEqual");
         }
 
-        console.log("login", exUser);
         return exUser as any;
       },
     }),
@@ -66,11 +65,12 @@ const options = {
     },
     async session({ session, token, user }) {
       if (token) {
-        session.id = token.id;
+        session.id = token.sub;
       }
 
-      const exUser = await client.user.findUnique({
-        where: { email: session.user?.email },
+      // console.log(session, token, user);
+      const exUser = await client.user.findFirst({
+        where: { id: Number(session.id) },
         select: {
           id: true,
           email: true,
@@ -82,24 +82,13 @@ const options = {
       });
 
       session.user = exUser;
+
       return session;
     },
   },
   session: {
     strategy: "jwt" as const,
   },
-  // async signIn({ user, account, profile, email, credentials }) {
-  //   return true;
-  // },
-  // async redirect({ url, baseUrl }) {
-  //   return baseUrl;
-  // },
-  // async session({ session, user, token }) {
-  //   return session;
-  // },
-  // async jwt({ token, user, account, profile, isNewUser }) {
-  //   return token;
-  // },
   secret: process.env.NEXTAUTH_SECRET,
 };
 

@@ -3,18 +3,20 @@ import Link from "next/link";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import { Button } from "@mui/material";
+import { Badge, Button } from "@mui/material";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/router";
+import { UserWithInfo } from "types/session";
+import { Role } from "@prisma/client";
 
 interface LayoutProps {
-  admin?: boolean;
-  login?: boolean;
+  user?: UserWithInfo;
   children: React.ReactNode;
 }
 
-export default function Layout({ admin, login, children }: LayoutProps) {
+export default function Layout({ user, children }: LayoutProps) {
   return (
-    <div className="flex flex-col items-center w-full h-full justify-center">
+    <div className="flex flex-col items-center w-full h-full justify-center min-w-[500px]">
       <div className="border-b-[1px] w-full">
         <div className="flex flex-col sm:flex-row items-center sm:items-end mx-4 sm:mx-10 md:mx-20 justify-between">
           <div className="mt-14 mb-5 flex items-center justify-center">
@@ -23,20 +25,25 @@ export default function Layout({ admin, login, children }: LayoutProps) {
               className="flex flex-row items-center justify-center gap-3 w-[180px]"
             >
               <Image src="/sumz.svg" alt="Sumz Logo" width={72} height={72} />
-              <p className="text-4xl font-bold text-center  ">SUMZ</p>
+              <p className="text-4xl font-bold text-center">SUMZ</p>
             </Link>
           </div>
 
           <div className="flex mt-5 mb-3 justify-end w-full">
-            {!!login ? (
+            {!!user ? (
               <>
-                <Link href={"/cart"}>
+                <Link href={"/profile/cart"}>
                   <Button sx={{ py: 2 }}>
-                    <ShoppingCartOutlinedIcon />
+                    <Badge
+                      badgeContent={user?.cartlist?.length || 0}
+                      color="warning"
+                    >
+                      <ShoppingCartOutlinedIcon />
+                    </Badge>
                   </Button>
                 </Link>
 
-                <Link href={"/fav"}>
+                <Link href={"/profile/wishlist"}>
                   <Button sx={{ py: 2 }}>
                     <BookmarkBorderIcon />
                   </Button>

@@ -1,3 +1,4 @@
+import { Cart, Fav, Role } from "@prisma/client";
 import NextAuth from "next-auth";
 
 declare module "next-auth" {
@@ -10,8 +11,9 @@ declare module "next-auth" {
       id: number;
       email: string;
       name: string;
-      role;
-      string;
+      favlist: Fav[];
+      cartlist: Cart[];
+      role: Role;
     };
   }
 }
