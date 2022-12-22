@@ -35,12 +35,14 @@ interface SearchProps {
   ) => void;
   removeFilter: (type: "category" | "price" | "keyword") => void;
   productNames: string[];
+  maxPrice: number;
 }
 
 export default function Search({
   search,
   removeFilter,
   productNames,
+  maxPrice,
 }: SearchProps) {
   const router = useRouter();
 
@@ -57,10 +59,6 @@ export default function Search({
 
   // keyword
   const [keyword, setKeyword] = useState<string | null>(null);
-
-  // product max price
-  const { data: maxPriceData } = useSWR<PriceResponse>("/api/products/price");
-  const maxPrice = maxPriceData ? maxPriceData.maxPrice : 0;
 
   // category
   const handleChangeCategory = useCallback(

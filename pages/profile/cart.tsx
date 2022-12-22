@@ -43,8 +43,10 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
   const [allCartCheckedStatus, setAllCartCheckedStatus] = useState<
     Record<number, boolean>
   >(
-    data.cartlist
-      ? Object.fromEntries(data.cartlist.map((cartData) => [cartData.id]))
+    data?.cartlist
+      ? Object.fromEntries(
+          data?.cartlist.map((cartData) => [cartData.id, true])
+        )
       : {}
   );
 

@@ -58,10 +58,16 @@ async function handler(
       }),
     ]);
 
+    const maxPrice = Math.max(
+      0,
+      ...products.map((item: Product) => item.price)
+    );
+
     res.json({
       ok: true,
       products,
       count,
+      maxPrice,
     });
   } else if (req.method === "POST") {
     const {

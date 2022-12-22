@@ -19,6 +19,12 @@ interface ProductsResponse {
   ok: boolean;
   products: Product[];
   count: number;
+  maxPrice: number;
+}
+
+interface KeywordResponse {
+  ok: boolean;
+  keywords: string[];
 }
 
 interface HomeProps {
@@ -84,10 +90,12 @@ function Home({ session }: HomeProps) {
   );
 
   // TODO: 검색 필터는 상품 목록 전체로 변경
-  const productNames = useMemo(
-    () => productRes?.products.map((product) => product.name),
-    [productRes?.products]
-  );
+  // const productNames = useMemo(
+  //   () => productRes?.products.map((product) => product.name),
+  //   [productRes?.products]
+  // );
+
+  const { data: keywordRes } = useSWR<KeywordResponse>("/api/products/keyword");
 
   if (!productRes?.ok) {
     return <ProductsLoad />;
@@ -98,7 +106,8 @@ function Home({ session }: HomeProps) {
       <Search
         search={search}
         removeFilter={removeFilter}
-        productNames={productNames}
+        productNames={keywordRes.keywords || []}
+        maxPrice={productRes?.maxPrice || 0}
       />
 
       <div className="flex flex-col items-center justify-center w-full px-10">
