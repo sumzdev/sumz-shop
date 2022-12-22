@@ -38,17 +38,22 @@ interface CartProps {
 const Wishlist: NextPage = ({ session }: CartProps) => {
   const router = useRouter();
 
+  const [loading, setLoading] = useState(true);
+
   const { data, mutate } = useSWR<CartResponse>("/api/users/cartlist");
 
   const [allCartCheckedStatus, setAllCartCheckedStatus] = useState<
     Record<number, boolean>
-  >(
-    data?.cartlist
-      ? Object.fromEntries(
-          data?.cartlist.map((cartData) => [cartData.id, true])
-        )
-      : {}
-  );
+  >({});
+
+  useEffect(() => {
+    if (!loading) return;
+    if (!data && !data.cartlist) return;
+    setAllCartCheckedStatus(
+      Object.fromEntries(data?.cartlist.map((cartData) => [cartData.id, true]))
+    );
+    setLoading(false);
+  }, [data, loading]);
 
   const [orderCartlist, { loading: orderLoading, data: orderRes }] =
     useMutation("/api/users/order/cartlist");
@@ -100,7 +105,11 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
 
   const totalPrice = data
     ? data?.cartlist
-        .filter((cart) => allCartCheckedStatus[cart.id])
+        .filter((cart) =>
+          allCartCheckedStatus[cart.id] !== undefined
+            ? allCartCheckedStatus[cart.id]
+            : true
+        )
         .reduce(
           (acc, cartInfo) => acc + cartInfo.count * cartInfo.product.price,
           0
@@ -190,7 +199,7 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
           </Button>
         </div>
 
-        {!data?.ok ? (
+        {loading ? (
           <div className="mt-10">{"Loading..."}</div>
         ) : data.cartlist.length > 0 ? (
           <form className="w-full" onSubmit={handleSubmit(onSubmitOrder)}>
