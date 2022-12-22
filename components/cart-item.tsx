@@ -30,6 +30,7 @@ interface CartItemProps {
 export default function CartItem({
   name,
   id,
+  productId,
   price,
   category,
   image,
@@ -83,7 +84,7 @@ export default function CartItem({
 
       <div className="grid grid-cols-3 sm:grid-cols-2 w-full items-center justify-center ">
         <Link
-          href={`/products/${id}`}
+          href={`/products/${productId}`}
           className="flex w-full mx-auto items-center justify-center h-[10rem] sm:h-[20rem]"
         >
           <Image
@@ -100,11 +101,16 @@ export default function CartItem({
           />
         </Link>
 
-        <div className="w-full h-full flex flex-col border-l col-span-2 sm:col-span-1 justify-between">
+        <div
+          className="w-full h-full flex flex-col border-l col-span-2 sm:col-span-1 justify-between"
+          onClick={(event) => {
+            toggleCheck();
+          }}
+        >
           <div className="p-4 w-full flex flex-col justify-between">
             <div className="mt-4">
               <div className="flex flex-row justify-between">
-                <Link href={`/products/${id}`}>
+                <Link href={`/products/${productId}`}>
                   <h1 className="text-xl md:text-2xl lg:line-clamp-1 text-ellipsis line-clamp-2">
                     {name}
                   </h1>
@@ -125,7 +131,12 @@ export default function CartItem({
             </div>
 
             <div className="px-0 sm:px-7 pt-10 pb-2 flex flex-col ml-auto gap-3 min-w-[30px]">
-              <div className="flex gap-3">
+              <div
+                className="flex gap-3"
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+              >
                 <Button
                   onClick={onDecreaseClick}
                   variant="contained"

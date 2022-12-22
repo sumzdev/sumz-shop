@@ -16,7 +16,7 @@ interface LayoutProps {
 
 export default function Layout({ user, children }: LayoutProps) {
   return (
-    <div className="flex flex-col items-center w-full h-full justify-center">
+    <div className="flex flex-col items-center w-full h-full justify-center min-w-[500px]">
       <div className="border-b-[1px] w-full">
         <div className="flex flex-col sm:flex-row items-center sm:items-end mx-4 sm:mx-10 md:mx-20 justify-between">
           <div className="mt-14 mb-5 flex items-center justify-center">

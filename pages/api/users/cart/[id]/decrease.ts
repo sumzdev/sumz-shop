@@ -21,8 +21,8 @@ async function handler(
   });
 
   if (cartData) {
-    if (cartData.count === 0) {
-      res.json({
+    if (cartData.count < 2) {
+      return res.json({
         ok: false,
         error: "장바구니 상품 수량은 최소 1개 입니다.",
       });

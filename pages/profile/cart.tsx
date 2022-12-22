@@ -13,6 +13,7 @@ import { useCallback } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import useMutation from "@libs/client/useMutation";
+import CircularProgress from "@mui/material/CircularProgress";
 
 interface IFormInput {
   cartStatus: Record<number, boolean>;
@@ -37,11 +38,15 @@ interface CartProps {
 const Wishlist: NextPage = ({ session }: CartProps) => {
   const router = useRouter();
 
+  const { data, mutate } = useSWR<CartResponse>("/api/users/cartlist");
+
   const [allCartCheckedStatus, setAllCartCheckedStatus] = useState<
     Record<number, boolean>
-  >({});
-
-  const { data, mutate } = useSWR<CartResponse>("/api/users/cartlist");
+  >(
+    data.cartlist
+      ? Object.fromEntries(data.cartlist.map((cartData) => [cartData.id]))
+      : {}
+  );
 
   const [orderCartlist, { loading: orderLoading, data: orderRes }] =
     useMutation("/api/users/order/cartlist");
@@ -63,19 +68,26 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
     }
   }, [data, orderLoading, orderRes, router]);
 
-  useEffect(() => {
-    if (!data?.ok) return;
-
-    setAllCartCheckedStatus(
-      Object.fromEntries(data.cartlist.map((cartData) => [cartData.id, true]))
-    );
-  }, [data]);
-
   const toggleCheckOrder = (cartId: number) => {
     setAllCartCheckedStatus({
       ...allCartCheckedStatus,
       [cartId]: !allCartCheckedStatus[cartId],
     });
+  };
+
+  const setAllCheck = () => {
+    setAllCartCheckedStatus(
+      Object.fromEntries(
+        Object.keys(allCartCheckedStatus).map((cartId) => [cartId, true])
+      )
+    );
+  };
+  const setAllUncheck = () => {
+    setAllCartCheckedStatus(
+      Object.fromEntries(
+        Object.keys(allCartCheckedStatus).map((cartId) => [cartId, false])
+      )
+    );
   };
 
   const { handleSubmit, control } = useForm<IFormInput>({
@@ -85,10 +97,12 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
   });
 
   const totalPrice = data
-    ? data?.cartlist.reduce(
-        (acc, cartInfo) => acc + cartInfo.count * cartInfo.product.price,
-        0
-      )
+    ? data?.cartlist
+        .filter((cart) => allCartCheckedStatus[cart.id])
+        .reduce(
+          (acc, cartInfo) => acc + cartInfo.count * cartInfo.product.price,
+          0
+        )
     : 0;
 
   const onSubmitOrder: SubmitHandler<IFormInput> = useCallback(() => {
@@ -129,15 +143,21 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
         );
         break;
       case "decrease":
-        mutate(
-          {
-            ...data,
-            cartlist: data.cartlist?.map((cart) =>
-              cart.id === cartId ? { ...cart, count: cart.count - 1 } : cart
-            ),
-          },
-          false
+        const selectedCartItem = data.cartlist?.find(
+          (cart) => cart.id === cartId
         );
+
+        if (selectedCartItem?.count > 1) {
+          mutate(
+            {
+              ...data,
+              cartlist: data.cartlist?.map((cart) =>
+                cart.id === cartId ? { ...cart, count: cart.count - 1 } : cart
+              ),
+            },
+            false
+          );
+        }
         break;
       case "delete":
         mutate(
@@ -155,9 +175,21 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
     <Layout user={session?.user}>
       <div className="flex flex-col items-center justify-center w-full px-10 min-w-[450px]">
         <h1 className="text-xl font-semibold sm:text-3xl">{"장바구니"}</h1>
+        <div className="mt-4 w-full flex justify-end gap-4 ">
+          <Button onClick={setAllCheck} variant="contained">
+            전체 선택
+          </Button>
+          <Button
+            variant="contained"
+            onClick={setAllUncheck}
+            sx={{ backgroundColor: "gray" }}
+          >
+            선택 해제
+          </Button>
+        </div>
 
         {!data?.ok ? (
-          <>{"Loading..."}</>
+          <div className="mt-10">{"Loading..."}</div>
         ) : data.cartlist.length > 0 ? (
           <form className="w-full" onSubmit={handleSubmit(onSubmitOrder)}>
             <div className="w-full mt-10 pb-[10rem] flex flex-col gap-10">
@@ -178,12 +210,16 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
               ))}
             </div>
 
-            <div className="w-full border bg-gray-200 p-4 flex flex-row justify-between fixed left-0 bottom-0 h-[6rem] align-center">
+            <div className="w-full border bg-gray-200 p-4 flex flex-row justify-between fixed left-0 bottom-0 h-[6rem] align-center min-w-[500px]">
               <p className="text-xl sm:text-2xl mb-4 mt-auto ml-5">{`총 주문 금액 : ${priceToStr(
                 totalPrice
               )} 원`}</p>
               <Button variant="contained" sx={{ py: 1, px: 5 }} type="submit">
-                <p className="text-md sm:text-lg">주문하기</p>
+                {orderLoading ? (
+                  <CircularProgress color="inherit" />
+                ) : (
+                  <p className="text-md sm:text-lg">주문하기</p>
+                )}
               </Button>
             </div>
           </form>
