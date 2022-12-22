@@ -58,10 +58,10 @@ function Home({ session }: HomeProps) {
       } else {
         params.delete(type);
       }
-
+      query.pageIndex = "1";
       router.replace({ pathname, query: params.toString() }, undefined);
     },
-    [params, pathname, router]
+    [params, pathname, router, query]
   );
 
   const search = useCallback(
@@ -77,11 +77,13 @@ function Home({ session }: HomeProps) {
       } else {
         query[key] = value;
       }
+      query.pageIndex = "1";
       router.push(router);
     },
     [query, router]
   );
 
+  // TODO: 검색 필터는 상품 목록 전체로 변경
   const productNames = useMemo(
     () => productRes?.products.map((product) => product.name),
     [productRes?.products]
