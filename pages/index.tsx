@@ -15,9 +15,11 @@ import { Session } from "next-auth";
 import Pagination from "@components/pagination";
 import { getParams } from "@libs/client/utils";
 import { Button } from "@mui/material";
+import { ProductWithFav } from "types/product";
+
 interface ProductsResponse {
   ok: boolean;
-  products: Product[];
+  products: ProductWithFav[];
   count: number;
   maxPrice: number;
 }
@@ -44,9 +46,25 @@ function Home({ session }: HomeProps) {
 
   const params = getParams(query);
 
-  const { data: productRes } = useSWR<ProductsResponse>(
+  const { data: productRes, mutate } = useSWR<ProductsResponse>(
     asPath.replace("/", "/api/products")
   );
+
+  const toggleFavMutate = (productId: number) => {
+    if (!productRes?.products) return;
+
+    mutate(
+      {
+        ...productRes,
+        products: productRes.products.map((product) =>
+          product.id === productId
+            ? { ...product, isFav: !product.isFav }
+            : product
+        ),
+      },
+      false
+    );
+  };
 
   const movePageIndex = useCallback(
     (pageIdx: number) => {
@@ -89,12 +107,6 @@ function Home({ session }: HomeProps) {
     [query, router]
   );
 
-  // TODO: 검색 필터는 상품 목록 전체로 변경
-  // const productNames = useMemo(
-  //   () => productRes?.products.map((product) => product.name),
-  //   [productRes?.products]
-  // );
-
   const { data: keywordRes } = useSWR<KeywordResponse>("/api/products/keyword");
 
   if (!productRes?.ok) {
@@ -113,7 +125,7 @@ function Home({ session }: HomeProps) {
       <div className="flex flex-col items-center justify-center w-full px-10">
         {!!productRes.count ? (
           <div className="w-full mt-10 mb-14 grid gap-10 lg:grid-cols-3">
-            {productRes.products?.map((product: Product) => (
+            {productRes.products?.map((product: ProductWithFav) => (
               <Item
                 id={product.id}
                 key={product.id}
@@ -121,6 +133,11 @@ function Home({ session }: HomeProps) {
                 price={product.price}
                 category={product.category}
                 image={product.image}
+                toggleFavMutate={() => toggleFavMutate(product.id)}
+                moveProduct={() => {
+                  router.push(`/products/${product.id}`);
+                }}
+                isFav={product.isFav}
               />
             ))}
           </div>

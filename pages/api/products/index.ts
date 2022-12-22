@@ -3,13 +3,17 @@ import { NextApiRequest, NextApiResponse } from "next";
 import client from "@libs/server/client";
 import { Prisma, Product } from "@prisma/client";
 import { PAGE_SIZE } from "constants/products";
+import { getSession } from "next-auth/react";
+import { ProductWithFav, ProductWithFavData } from "types/product";
 
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) {
   if (req.method === "GET") {
-    let products: Product[] = [];
+    const session = await getSession({ req });
+
+    let products: ProductWithFavData[] = [];
     let count: number = -1;
     let filter: Prisma.ProductWhereInput = {};
 
@@ -55,17 +59,38 @@ async function handler(
         where: {
           ...filter,
         },
+        include: {
+          favlist: {
+            where: {
+              userId: session?.user?.id || -1,
+            },
+            select: {
+              id: true,
+              userId: true,
+              productId: true,
+            },
+          },
+        },
       }),
     ]);
 
     const maxPrice = Math.max(
       0,
-      ...products.map((item: Product) => item.price)
+      ...products.map((item: ProductWithFavData) => item.price)
     );
+
+    const productWithFav = products.map((product) => {
+      return {
+        ...product,
+        isFav: !!product.favlist.some(
+          (fav) => fav.userId === session?.user?.id
+        ),
+      };
+    });
 
     res.json({
       ok: true,
-      products,
+      products: productWithFav,
       count,
       maxPrice,
     });

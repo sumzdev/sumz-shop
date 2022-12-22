@@ -32,7 +32,7 @@ export default function ProductsLoad() {
                     <div className="">
                       <Skeleton
                         variant="rectangular"
-                        width={`${Math.random() * (100 - 40) + 40}%`}
+                        width={"10rem"}
                         height="2rem"
                         className="mt-5"
                       />

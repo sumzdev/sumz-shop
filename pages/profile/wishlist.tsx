@@ -30,6 +30,17 @@ const Wishlist: NextPage = ({ session }: WishlistProps) => {
 
   const { data, mutate } = useSWR<WishlistResponse>("/api/users/wishlist");
 
+  const toggleFavMutate = (favId: number) => {
+    if (!data) return;
+    mutate(
+      {
+        ...data,
+        wishlist: data.wishlist?.filter((fav) => fav.id !== favId),
+      },
+      false
+    );
+  };
+
   return (
     <Layout user={session?.user}>
       <div className="flex flex-col items-center justify-center w-full px-10">
@@ -47,6 +58,11 @@ const Wishlist: NextPage = ({ session }: WishlistProps) => {
                 price={product.price}
                 category={product.category}
                 image={product.image}
+                moveProduct={() => {
+                  router.push(`/products/${product.id}`);
+                }}
+                isFav={true}
+                toggleFavMutate={() => toggleFavMutate(favId)}
               />
             ))}
           </div>
