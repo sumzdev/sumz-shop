@@ -7,7 +7,9 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
   const product = await client?.product.findMany();
-  const keywords = product.map((v: Product) => v.name);
+  const keywords = product
+    .map((v: Product) => v.name)
+    .sort((a, b) => a.localeCompare(b));
 
   res.json({
     ok: true,
