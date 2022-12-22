@@ -26,3 +26,7 @@ export const getParams = (query: ParsedUrlQuery): URLSearchParams => {
 export function cls(...classnames: string[]) {
   return classnames.join(" ");
 }
+
+export const priceToStr = (price: number): string => {
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
