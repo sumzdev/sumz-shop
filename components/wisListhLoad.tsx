@@ -1,7 +1,7 @@
 import { Skeleton, TextField } from "@mui/material";
-import Layout from "./layout";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
-export default function ProductsLoad() {
+export default function WishlistLoad() {
   return (
     <div className="flex flex-col items-center justify-center w-full px-10">
       <div className="w-full mt-10 mb-14 grid gap-10 lg:grid-cols-3">
@@ -13,7 +13,7 @@ export default function ProductsLoad() {
           >
             <div className="flex flex-col items-center justify-center w-full">
               <div className="grid grid-cols-2 lg:flex lg:flex-col w-full">
-                <div className="flex w-full mx-auto items-center justify-center h-80 lg:h-50">
+                <div className="flex w-full mx-auto items-center justify-center h-80 mt-12 lg:h-50">
                   <Skeleton
                     variant="rectangular"
                     width="300px"
@@ -44,6 +44,9 @@ export default function ProductsLoad() {
                       height={"1.2rem"}
                     />
                   </div>
+                </div>
+                <div className="absolute pt-3 pl-3">
+                  <FavoriteIcon fontSize="large" className="text-pink-500" />
                 </div>
               </div>
             </div>

@@ -86,6 +86,9 @@ export default function CartItem({
         <Link
           href={`/products/${productId}`}
           className="flex w-full mx-auto items-center justify-center h-[10rem] sm:h-[20rem]"
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
         >
           <Image
             src={
@@ -110,10 +113,15 @@ export default function CartItem({
           <div className="p-4 w-full flex flex-col justify-between">
             <div className="mt-4">
               <div className="flex flex-row justify-between">
-                <Link href={`/products/${productId}`}>
-                  <h1 className="text-xl md:text-2xl lg:line-clamp-1 text-ellipsis line-clamp-2">
+                <Link
+                  href={`/products/${productId}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
+                >
+                  <h3 className="text-xl md:text-2xl lg:line-clamp-1 text-ellipsis line-clamp-2">
                     {name}
-                  </h1>
+                  </h3>
                 </Link>
                 <Button type="button" onClick={onDeleteClick}>
                   <ClearIcon />

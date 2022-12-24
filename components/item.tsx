@@ -1,8 +1,12 @@
 import { rgbDataURL } from "@libs/client/utils";
-import { Button, Container } from "@mui/material";
 import { CATEGORY } from "constants/category";
 import Image from "next/image";
 import Link from "next/link";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { useRouter } from "next/router";
+import useMutation from "@libs/client/useMutation";
+import { useCallback } from "react";
 
 interface ItemProps {
   name: string;
@@ -10,13 +14,37 @@ interface ItemProps {
   price: number;
   category: string;
   image: string;
+  isFav: boolean;
+  toggleFavMutate: () => void;
+  moveProduct: () => void;
 }
 
-export default function Item({ name, id, price, category, image }: ItemProps) {
+interface IFavResponse {
+  ok: boolean;
+  isFav: boolean;
+}
+
+export default function Item({
+  name,
+  id,
+  price,
+  category,
+  image,
+  moveProduct,
+  toggleFavMutate,
+  isFav,
+}: ItemProps) {
+  const [toggleFav] = useMutation<IFavResponse>(`/api/products/${id}/fav`);
+
+  const onToggleFav = useCallback(() => {
+    toggleFav({});
+    toggleFavMutate();
+  }, [toggleFav, toggleFavMutate]);
+
   return (
-    <Link
-      className="border flex flex-col w-full overflow-hidden group"
-      href={`/products/${id}`}
+    <div
+      className="border flex flex-col w-full overflow-hidden group cursor-pointer"
+      onClick={moveProduct}
     >
       <div className="flex flex-col items-center justify-center w-full">
         <div className="grid grid-cols-2 lg:flex lg:flex-col w-full">
@@ -50,8 +78,27 @@ export default function Item({ name, id, price, category, image }: ItemProps) {
               {price} 원
             </p>
           </div>
+
+          <div className="absolute pt-3 pl-3">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleFav();
+              }}
+            >
+              {isFav ? (
+                <FavoriteIcon fontSize="large" className="text-pink-500" />
+              ) : (
+                <FavoriteBorderIcon
+                  fontSize="large"
+                  className="text-gray-300"
+                />
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

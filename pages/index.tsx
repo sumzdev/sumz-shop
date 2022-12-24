@@ -15,9 +15,12 @@ import { Session } from "next-auth";
 import Pagination from "@components/pagination";
 import { getParams } from "@libs/client/utils";
 import { Button } from "@mui/material";
+import { ProductWithFav } from "types/product";
+import Products from "@components/products";
+
 interface ProductsResponse {
   ok: boolean;
-  products: Product[];
+  products: ProductWithFav[];
   count: number;
   maxPrice: number;
 }
@@ -44,8 +47,31 @@ function Home({ session }: HomeProps) {
 
   const params = getParams(query);
 
-  const { data: productRes } = useSWR<ProductsResponse>(
+  const { data: productRes, mutate } = useSWR<ProductsResponse>(
     asPath.replace("/", "/api/products")
+  );
+
+  const toggleFavMutate = (productId: number) => {
+    if (!productRes?.products) return;
+
+    mutate(
+      {
+        ...productRes,
+        products: productRes.products.map((product) =>
+          product.id === productId
+            ? { ...product, isFav: !product.isFav }
+            : product
+        ),
+      },
+      false
+    );
+  };
+
+  const moveProductDetail = useCallback(
+    (productId: number) => {
+      router.push(`/products/${productId}`);
+    },
+    [router]
   );
 
   const movePageIndex = useCallback(
@@ -89,62 +115,29 @@ function Home({ session }: HomeProps) {
     [query, router]
   );
 
-  // TODO: 검색 필터는 상품 목록 전체로 변경
-  // const productNames = useMemo(
-  //   () => productRes?.products.map((product) => product.name),
-  //   [productRes?.products]
-  // );
-
   const { data: keywordRes } = useSWR<KeywordResponse>("/api/products/keyword");
-
-  if (!productRes?.ok) {
-    return <ProductsLoad />;
-  }
 
   return (
     <Layout user={session?.user}>
       <Search
         search={search}
         removeFilter={removeFilter}
-        productNames={keywordRes.keywords || []}
+        productNames={keywordRes?.keywords || []}
         maxPrice={productRes?.maxPrice || 0}
       />
 
-      <div className="flex flex-col items-center justify-center w-full px-10">
-        {!!productRes.count ? (
-          <div className="w-full mt-10 mb-14 grid gap-10 lg:grid-cols-3">
-            {productRes.products?.map((product: Product) => (
-              <Item
-                id={product.id}
-                key={product.id}
-                name={product.name}
-                price={product.price}
-                category={product.category}
-                image={product.image}
-              />
-            ))}
-          </div>
-        ) : (
-          <>
-            <p className="mt-20 mb-6">찾으시는 결과가 없습니다.</p>
-            <Button
-              variant="contained"
-              onClick={() => {
-                router.push("/");
-              }}
-            >
-              전체 상품 보기
-            </Button>
-          </>
-        )}
-        <div className="w-full mb-20 ">
-          <Pagination
-            count={productRes?.count}
-            pageIndex={pageNum}
-            movePageIndex={movePageIndex}
-          />
-        </div>
-      </div>
+      {!productRes?.ok ? (
+        <ProductsLoad />
+      ) : (
+        <Products
+          pageNum={pageNum}
+          count={productRes.count}
+          productList={productRes.products}
+          moveProductDetail={moveProductDetail}
+          toggleFavMutate={toggleFavMutate}
+          movePageIndex={movePageIndex}
+        />
+      )}
 
       {isAdmin && (
         <FloatingButton href={`/products/upload`} text="상품 추가하기">

@@ -38,17 +38,22 @@ interface CartProps {
 const Wishlist: NextPage = ({ session }: CartProps) => {
   const router = useRouter();
 
+  const [loading, setLoading] = useState(true);
+
   const { data, mutate } = useSWR<CartResponse>("/api/users/cartlist");
 
   const [allCartCheckedStatus, setAllCartCheckedStatus] = useState<
     Record<number, boolean>
-  >(
-    data?.cartlist
-      ? Object.fromEntries(
-          data?.cartlist.map((cartData) => [cartData.id, true])
-        )
-      : {}
-  );
+  >({});
+
+  useEffect(() => {
+    if (!loading) return;
+    if (!data && !data?.cartlist) return;
+    setAllCartCheckedStatus(
+      Object.fromEntries(data?.cartlist.map((cartData) => [cartData.id, false]))
+    );
+    setLoading(false);
+  }, [data, loading]);
 
   const [orderCartlist, { loading: orderLoading, data: orderRes }] =
     useMutation("/api/users/order/cartlist");
@@ -58,7 +63,7 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
     if (!data.cartlist || !orderRes.cartlist) return;
 
     if (orderRes && orderRes.ok) {
-      const orderInfo = data.cartlist
+      const orderInfo = data?.cartlist
         .filter((cart) => orderRes.cartlist.includes(cart.id.toString()))
         .reduce(
           (str, cart) => str + `${cart.product.name} [${cart.count}개]\n`,
@@ -100,7 +105,7 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
 
   const totalPrice = data
     ? data?.cartlist
-        .filter((cart) => allCartCheckedStatus[cart.id])
+        .filter((cart) => !!allCartCheckedStatus[cart.id])
         .reduce(
           (acc, cartInfo) => acc + cartInfo.count * cartInfo.product.price,
           0
@@ -190,7 +195,7 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
           </Button>
         </div>
 
-        {!data?.ok ? (
+        {loading ? (
           <div className="mt-10">{"Loading..."}</div>
         ) : data.cartlist.length > 0 ? (
           <form className="w-full" onSubmit={handleSubmit(onSubmitOrder)}>

@@ -6,10 +6,20 @@ async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) {
-  const product = await client?.product.findMany();
-  const keywords = product
-    .map((v: Product) => v.name)
-    .sort((a, b) => a.localeCompare(b));
+  const products = await client?.product.findMany();
+
+  const pattern = /[a-zA-Zㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+
+  let keywords: string[] = [];
+
+  products.forEach((product) => {
+    let words = product.name.split(" ");
+    words = words.filter((v) => pattern.test(v));
+    keywords.push(...words);
+  });
+
+  keywords = Array.from(new Set(keywords));
+  keywords.sort();
 
   res.json({
     ok: true,

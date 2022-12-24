@@ -9,6 +9,7 @@ import Link from "next/link";
 import useMutation from "@libs/client/useMutation";
 import { Button } from "@mui/material";
 import { useRouter } from "next/router";
+import WishlistLoad from "@components/wisListhLoad";
 
 interface FavInfo {
   id: number;
@@ -30,13 +31,24 @@ const Wishlist: NextPage = ({ session }: WishlistProps) => {
 
   const { data, mutate } = useSWR<WishlistResponse>("/api/users/wishlist");
 
+  const toggleFavMutate = (favId: number) => {
+    if (!data) return;
+    mutate(
+      {
+        ...data,
+        wishlist: data.wishlist?.filter((fav) => fav.id !== favId),
+      },
+      false
+    );
+  };
+
   return (
     <Layout user={session?.user}>
       <div className="flex flex-col items-center justify-center w-full px-10">
         <h1 className="text-xl font-semibold sm:text-3xl">{"위시 리스트"}</h1>
 
         {!data?.ok ? (
-          <>{"Loading..."}</>
+          <WishlistLoad />
         ) : data.wishlist.length > 0 ? (
           <div className="w-full mt-10 mb-14 grid gap-10 lg:grid-cols-3">
             {data.wishlist.map(({ id: favId, product, productId }) => (
@@ -47,6 +59,11 @@ const Wishlist: NextPage = ({ session }: WishlistProps) => {
                 price={product.price}
                 category={product.category}
                 image={product.image}
+                moveProduct={() => {
+                  router.push(`/products/${product.id}`);
+                }}
+                isFav={true}
+                toggleFavMutate={() => toggleFavMutate(favId)}
               />
             ))}
           </div>
