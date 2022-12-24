@@ -3,7 +3,14 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ["localhost", "via.placeholder.com", "fakestoreapi.com"],
+    domains: [
+      "localhost",
+      "via.placeholder.com",
+      "fakestoreapi.com",
+      "pixabay.com",
+      "images.unsplash.com",
+      "",
+    ],
   },
 };
 
