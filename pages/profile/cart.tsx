@@ -50,7 +50,7 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
     if (!loading) return;
     if (!data && !data.cartlist) return;
     setAllCartCheckedStatus(
-      Object.fromEntries(data?.cartlist.map((cartData) => [cartData.id, true]))
+      Object.fromEntries(data?.cartlist.map((cartData) => [cartData.id, false]))
     );
     setLoading(false);
   }, [data, loading]);
@@ -105,11 +105,7 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
 
   const totalPrice = data
     ? data?.cartlist
-        .filter((cart) =>
-          allCartCheckedStatus[cart.id] !== undefined
-            ? allCartCheckedStatus[cart.id]
-            : true
-        )
+        .filter((cart) => !!allCartCheckedStatus[cart.id])
         .reduce(
           (acc, cartInfo) => acc + cartInfo.count * cartInfo.product.price,
           0
