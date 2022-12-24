@@ -48,7 +48,7 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
 
   useEffect(() => {
     if (!loading) return;
-    if (!data && !data.cartlist) return;
+    if (!data && !data?.cartlist) return;
     setAllCartCheckedStatus(
       Object.fromEntries(data?.cartlist.map((cartData) => [cartData.id, false]))
     );
@@ -63,7 +63,7 @@ const Wishlist: NextPage = ({ session }: CartProps) => {
     if (!data.cartlist || !orderRes.cartlist) return;
 
     if (orderRes && orderRes.ok) {
-      const orderInfo = data.cartlist
+      const orderInfo = data?.cartlist
         .filter((cart) => orderRes.cartlist.includes(cart.id.toString()))
         .reduce(
           (str, cart) => str + `${cart.product.name} [${cart.count}개]\n`,

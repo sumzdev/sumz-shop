@@ -9,6 +9,7 @@ import Link from "next/link";
 import useMutation from "@libs/client/useMutation";
 import { Button } from "@mui/material";
 import { useRouter } from "next/router";
+import WishlistLoad from "@components/wisListhLoad";
 
 interface FavInfo {
   id: number;
@@ -47,7 +48,7 @@ const Wishlist: NextPage = ({ session }: WishlistProps) => {
         <h1 className="text-xl font-semibold sm:text-3xl">{"위시 리스트"}</h1>
 
         {!data?.ok ? (
-          <>{"Loading..."}</>
+          <WishlistLoad />
         ) : data.wishlist.length > 0 ? (
           <div className="w-full mt-10 mb-14 grid gap-10 lg:grid-cols-3">
             {data.wishlist.map(({ id: favId, product, productId }) => (
