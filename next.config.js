@@ -7,7 +7,7 @@ const nextConfig = {
       "localhost",
       "via.placeholder.com",
       "fakestoreapi.com",
-      "cdn.pixabay.com",
+      "pixabay.com",
       "images.unsplash.com",
       "",
     ],
