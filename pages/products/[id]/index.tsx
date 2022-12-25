@@ -37,7 +37,7 @@ export interface ICartCount {
 const Product: NextPage = ({ session }: ProductDetailProps) => {
   const router = useRouter();
 
-  const isAdmin = session?.user?.role === Role.ADMIN;
+  const isAdmin = session ? session?.user?.role === Role.ADMIN : false;
 
   const { handleSubmit, resetField, control } = useForm<ICartCount>({
     defaultValues: { count: 1 },

@@ -24,15 +24,17 @@ async function handler(
     where: { id: Number(id.toString()) },
   });
 
-  const isFavorited = Boolean(
-    await client?.fav.findFirst({
-      where: {
-        productId: product?.id,
-        userId: user?.id,
-      },
-      select: { id: true },
-    })
-  );
+  const isFavorited = user
+    ? Boolean(
+        await client?.fav.findFirst({
+          where: {
+            productId: product?.id,
+            userId: user?.id,
+          },
+          select: { id: true },
+        })
+      )
+    : false;
 
   res.json({
     ok: true,
