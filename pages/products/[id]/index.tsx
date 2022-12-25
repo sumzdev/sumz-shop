@@ -17,6 +17,8 @@ import { Session } from "next-auth";
 import useMutation from "@libs/client/useMutation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { ProductWithFav } from "types/product";
+import ProductDetail from "@components/productDetail";
 
 interface ProductDetailResponse {
   ok: boolean;
@@ -28,11 +30,11 @@ interface ProductDetailProps {
   session: Session;
 }
 
-interface ICartCount {
+export interface ICartCount {
   count: number;
 }
 
-const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
+const Product: NextPage = ({ session }: ProductDetailProps) => {
   const router = useRouter();
 
   const isAdmin = session?.user?.role === Role.ADMIN;
@@ -72,98 +74,23 @@ const ProductDetail: NextPage = ({ session }: ProductDetailProps) => {
     saveCart(cartInfo);
   };
 
-  if (!data) {
-    return <ProductDetailLoad />;
-  }
-
-  if (data.ok && !data.product) {
-    // TODO: 404
-  }
   return (
     <Layout user={session?.user}>
-      <Container className="flex flex-col items-center justify-center w-full">
-        <div className="flex flex-col md:grid md:grid-cols-2 ">
-          <div className="flex w-full mx-auto  items-center justify-center">
-            <Image
-              src={
-                product?.image && product?.image !== ""
-                  ? product?.image
-                  : "https://via.placeholder.com/300"
-              }
-              alt={product?.name || "product image"}
-              width={300}
-              height={300}
-              placeholder="blur"
-              blurDataURL={rgbDataURL(100, 100, 100)}
-              className="items-center w-fit overflow-hidden max-w-[300px] max-h-[300px]"
-              unoptimized={process.env.NODE_ENV !== "production"}
-            />
-          </div>
-
-          <div className="mt-10 md:mt-0 w-full h-full flex flex-col justify-between">
-            <div>
-              <h1 className="text-3xl">{product?.name}</h1>
-              {product?.category && (
-                <p className="text-lg mt-4">{CATEGORY[product?.category]}</p>
-              )}
-              <p className="text-xl text-gray-600 mt-3 text-right">
-                {product?.price} 원
-              </p>
-            </div>
-
-            <div className="flex flex-row mt-8">
-              {/* 위시리스트 */}
-              <Button
-                // variant="outlined"
-                sx={{ py: 2, borderColor: "lightgray" }}
-                onClick={onFavClick}
-              >
-                {data?.isFavorited ? (
-                  <FavoriteIcon fontSize="large" className="text-pink-500" />
-                ) : (
-                  <FavoriteBorderIcon fontSize="large" />
-                )}
-              </Button>
-
-              <form
-                className="w-full grid grid-cols-3 gap-4  p-4 rounded-md"
-                onSubmit={handleSubmit(onCartClick)}
-              >
-                <Controller
-                  name="count"
-                  control={control}
-                  rules={{
-                    required: true,
-                    pattern: /^\d+$/,
-                  }}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      type="number"
-                      variant="outlined"
-                      className="bg-white col-span-2"
-                    />
-                  )}
-                />
-
-                {/* 장바구니 */}
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{ py: 2 }}
-                  fullWidth
-                >
-                  Cart
-                </Button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <div className="my-10">
-          <p className="">{product?.description}</p>
-        </div>
-      </Container>
+      {data?.ok ? (
+        !!data?.product ? (
+          <ProductDetail
+            product={data?.product}
+            isFav={data?.isFavorited}
+            onFavClick={() => onFavClick()}
+            handleSubmit={() => handleSubmit(onCartClick)}
+            control={control}
+          />
+        ) : (
+          <div>{"해당 상품이 존재하지 않습니다."}</div>
+        )
+      ) : (
+        <ProductDetailLoad />
+      )}
 
       {isAdmin && (
         <FloatingButton
@@ -184,4 +111,4 @@ export async function getServerSideProps(context: NextPageContext) {
   };
 }
 
-export default ProductDetail;
+export default Product;
