@@ -1,20 +1,16 @@
 import useSWR from "swr";
 import Layout from "@components/layout";
-import { Product, Role } from "@prisma/client";
-import Item from "@components/item";
+import { Role } from "@prisma/client";
 import ProductsLoad from "@components/productsLoad";
 import { getSession } from "next-auth/react";
 import FloatingButton from "@components/floating-button";
 import AddIcon from "@mui/icons-material/Add";
 import { useRouter } from "next/router";
-import { useMemo } from "react";
 import { NextPageContext } from "next";
 import Search from "@components/search";
 import { useCallback } from "react";
 import { Session } from "next-auth";
-import Pagination from "@components/pagination";
 import { getParams } from "@libs/client/utils";
-import { Button } from "@mui/material";
 import { ProductWithFav } from "types/product";
 import Products from "@components/products";
 
