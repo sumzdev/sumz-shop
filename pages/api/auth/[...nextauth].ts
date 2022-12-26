@@ -61,8 +61,7 @@ const options = {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      console.log(url, baseUrl);
-      return baseUrl;
+      return Promise.resolve(url);
     },
 
     async jwt({ token }) {
