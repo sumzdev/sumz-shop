@@ -198,6 +198,10 @@ function Enter({ loginSession }: EnterProps) {
 
 export async function getServerSideProps(context: NextPageContext) {
   const session = await getSession(context);
+  if (!session) {
+    return {};
+  }
+
   return {
     props: {
       session,
