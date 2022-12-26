@@ -84,7 +84,6 @@ const Product: NextPage = ({ session }: ProductDetailProps) => {
               product={data?.product}
               isFav={data?.isFavorited}
               onFavClick={() => onFavClick()}
-              // handleSubmit={() => handleSubmit(onCartClick)}
               control={control}
             />
           </form>
