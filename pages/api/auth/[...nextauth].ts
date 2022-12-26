@@ -60,10 +60,6 @@ const options = {
     signIn: "/auth/signin",
   },
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      return Promise.resolve(url);
-    },
-
     async jwt({ token }) {
       return token;
     },
@@ -92,7 +88,9 @@ const options = {
       return session;
     },
   },
-  redirect: async ({ url, baseUrl }) => {},
+  redirect: async ({ url, baseUrl }) => {
+    Promise.resolve(url);
+  },
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt" as const,
