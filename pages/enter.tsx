@@ -58,7 +58,6 @@ function Enter({ loginSession }: EnterProps) {
 
   // TODO: 미들웨어
   if (!!loginSession?.user) {
-    console.log(loginSession?.user);
     router.push("/");
   }
 

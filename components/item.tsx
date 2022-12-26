@@ -1,4 +1,4 @@
-import { rgbDataURL } from "@libs/client/utils";
+import { priceToStr, rgbDataURL } from "@libs/client/utils";
 import { CATEGORY } from "constants/category";
 import Image from "next/image";
 import Link from "next/link";
@@ -75,7 +75,7 @@ export default function Item({
               )}
             </div>
             <p className="text-xl lg:text-base text-gray-600 pr-4 text-right">
-              {price} 원
+              {priceToStr(price)} 원
             </p>
           </div>
 

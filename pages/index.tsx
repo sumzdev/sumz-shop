@@ -146,7 +146,6 @@ function Home({ session }: HomeProps) {
 
 export async function getServerSideProps(context: NextPageContext) {
   const session = await getSession(context);
-  console.log(session);
   return {
     props: {
       session,

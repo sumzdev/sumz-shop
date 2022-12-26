@@ -17,7 +17,6 @@ interface ProductDetailProps {
   product: Product;
   isFav: boolean;
   onFavClick: () => void;
-  handleSubmit: () => void;
   control: Control<ICartCount, any>;
 }
 
@@ -25,7 +24,6 @@ export default function ProductDetail({
   isFav,
   product,
   onFavClick,
-  handleSubmit,
   control,
 }: ProductDetailProps) {
   console.log(product?.image);
@@ -75,10 +73,7 @@ export default function ProductDetail({
               )}
             </Button>
 
-            <form
-              className="w-full grid grid-cols-3 gap-4  p-4 rounded-md"
-              onSubmit={handleSubmit}
-            >
+            <div className="w-full grid grid-cols-3 gap-4  p-4 rounded-md">
               <Controller
                 name="count"
                 control={control}
@@ -105,7 +100,7 @@ export default function ProductDetail({
               >
                 Cart
               </Button>
-            </form>
+            </div>
           </div>
         </div>
       </div>

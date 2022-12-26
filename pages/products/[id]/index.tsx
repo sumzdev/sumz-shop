@@ -57,9 +57,10 @@ const Product: NextPage = ({ session }: ProductDetailProps) => {
     `/api/products/${router.query.id}/cart`
   );
   useEffect(() => {
+    console.log(cartData?.ok);
     if (!!cartData?.ok) {
       alert("상품이 장바구니에 추가되었습니다!");
-      resetField("count");
+      // resetField("count");
     }
   }, [cartData?.ok, resetField]);
 
@@ -78,13 +79,14 @@ const Product: NextPage = ({ session }: ProductDetailProps) => {
     <Layout user={session?.user}>
       {data?.ok ? (
         !!data?.product ? (
-          <ProductDetail
-            product={data?.product}
-            isFav={data?.isFavorited}
-            onFavClick={() => onFavClick()}
-            handleSubmit={() => handleSubmit(onCartClick)}
-            control={control}
-          />
+          <form onSubmit={handleSubmit(onCartClick)}>
+            <ProductDetail
+              product={data?.product}
+              isFav={data?.isFavorited}
+              onFavClick={() => onFavClick()}
+              control={control}
+            />
+          </form>
         ) : (
           <div>{"해당 상품이 존재하지 않습니다."}</div>
         )
