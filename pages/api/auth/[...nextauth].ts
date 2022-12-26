@@ -68,6 +68,8 @@ const options = {
       return token;
     },
     async session({ session, token, user }) {
+      console.log(session, token, user);
+
       if (token) {
         session.id = token.sub;
       }
