@@ -1,4 +1,5 @@
 import withHandler, { ResponseType } from "@libs/server/withHandler";
+import client from "@libs/server/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
@@ -13,7 +14,7 @@ async function handler(
   } = req;
 
   const user = session?.user?.id
-    ? await client?.user.findUnique({
+    ? await client.user.findUnique({
         where: {
           id: Number(session.user.id.toString()),
         },
@@ -26,7 +27,7 @@ async function handler(
 
   const isFavorited = user
     ? Boolean(
-        await client?.fav.findFirst({
+        await client.fav.findFirst({
           where: {
             productId: product?.id,
             userId: user?.id,
