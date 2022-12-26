@@ -33,7 +33,7 @@ const loginHelper = {
 };
 
 interface EnterProps {
-  loginSession: Session;
+  loginSession?: Session;
 }
 
 function Enter({ loginSession }: EnterProps) {
