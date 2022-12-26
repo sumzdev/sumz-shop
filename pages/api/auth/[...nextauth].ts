@@ -90,6 +90,7 @@ const options = {
       return session;
     },
   },
+  redirect: async ({ url, baseUrl }) => {},
   session: {
     strategy: "jwt" as const,
   },
