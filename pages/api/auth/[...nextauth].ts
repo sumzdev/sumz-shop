@@ -91,10 +91,10 @@ const options = {
     },
   },
   redirect: async ({ url, baseUrl }) => {},
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt" as const,
   },
-  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const authHandler: NextApiHandler = (req, res) => NextAuth(req, res, options);
