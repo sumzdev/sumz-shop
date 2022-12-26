@@ -57,7 +57,7 @@ const options = {
     }),
   ],
   pages: {
-    signIn: "enter",
+    signIn: "/auth/signin",
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
