@@ -1,12 +1,13 @@
 import withHandler, { ResponseType } from "@libs/server/withHandler";
 import { Product } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
+import client from "@libs/server/client";
 
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) {
-  const products = await client?.product.findMany();
+  const products = await client.product.findMany();
 
   const pattern = /[a-zA-Zㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
 
