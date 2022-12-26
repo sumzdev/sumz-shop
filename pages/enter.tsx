@@ -71,6 +71,7 @@ function Enter({ loginSession }: EnterProps) {
           ...body,
           email: body.email,
           password: body.password,
+          callbackUrl: process.env.NEXTAUTH_URL,
         });
 
         if (!result?.error) {
