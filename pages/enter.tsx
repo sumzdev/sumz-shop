@@ -77,7 +77,7 @@ function Enter({ loginSession }: EnterProps) {
           router.push("/");
         }
 
-        switch (result.error) {
+        switch (result?.error) {
           case "notEqual":
             resetField("password");
             setError("password", { message: loginHelper.password.notEqual });
